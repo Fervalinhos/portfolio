@@ -6,9 +6,4 @@ import { defineConfig } from 'vite'
 export default defineConfig({
   base: process.env.BASE_PATH || '/',
   plugins: [react()],
-  build: {
-    // SINGLE_BUNDLE=1 junta os imports dinâmicos num só arquivo, para prévias que
-    // precisam embutir o JS no HTML. O build normal baixa o fluido (three.js) à parte.
-    rolldownOptions: process.env.SINGLE_BUNDLE ? { output: { inlineDynamicImports: true } } : {},
-  },
 })

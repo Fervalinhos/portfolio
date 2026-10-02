@@ -411,42 +411,55 @@ svg {
   padding-bottom: 24px;
 }
 
-.stats__inner {
-  position: relative;
-}
-
-/* Fluido (React Bits LiquidEther) atrás dos cards, um pouco maior que a grade */
-.stats__fluid {
-  position: absolute;
-  inset: -28px 0;
-  z-index: 0;
-  /* o fluido lê o mouse pela janela; sem isso a área bloquearia a rolagem no celular */
-  pointer-events: none;
-  /* bordas suaves, sem o retângulo do canvas aparecendo */
-  mask-image:
-    linear-gradient(to right, transparent, #000 6%, #000 94%, transparent),
-    linear-gradient(to bottom, transparent, #000 30%, #000 70%, transparent);
-  mask-composite: intersect;
-}
-
 .stats__grid {
-  position: relative;
-  z-index: 1;
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
   gap: 16px;
 }
 
-/* Cards de vidro: o fluido aparece desfocado por trás */
+/* Cards com o redemoinho de cores (Grainient) por dentro e texto branco por cima.
+   A entrada (Reveal) anima o wrapper, então o hover pode mover o card. */
+.stat-reveal > .stat {
+  height: 100%;
+}
+
 .stat {
+  position: relative;
+  isolation: isolate;
   display: flex;
   flex-direction: column;
   padding: 20px 24px;
-  border: 1px solid color-mix(in srgb, var(--border) 80%, transparent);
+  overflow: hidden;
+  border: 1px solid color-mix(in srgb, var(--accent) 35%, transparent);
   border-radius: var(--radius);
-  background: color-mix(in srgb, var(--surface) 50%, transparent);
-  backdrop-filter: blur(14px) saturate(150%);
-  -webkit-backdrop-filter: blur(14px) saturate(150%);
+  /* também é o visual de quem prefere menos movimento */
+  background: linear-gradient(135deg, var(--accent-strong), #312e81);
+  color: #fff;
+  box-shadow: var(--shadow);
+  transition:
+    transform 0.5s cubic-bezier(0.22, 1, 0.36, 1),
+    box-shadow 0.5s;
+}
+
+.stat:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 14px 34px color-mix(in srgb, var(--accent) 35%, transparent);
+}
+
+.stat__swirl {
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+}
+
+/* leve escurecida atrás do texto para manter a leitura em qualquer ponto do redemoinho */
+.stat::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  background: linear-gradient(100deg, rgb(15 23 42 / 0.45), transparent 80%);
+  pointer-events: none;
 }
 
 .stat__value {
@@ -457,7 +470,7 @@ svg {
 
 .stat__label {
   font-size: 14px;
-  color: var(--text-muted);
+  color: rgb(255 255 255 / 0.85);
 }
 
 /* ---------- Seções ---------- */
