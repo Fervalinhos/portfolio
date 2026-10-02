@@ -9,6 +9,7 @@ from fetch_github_data import (
     group_contributions,
     language_breakdown,
     readme_summary,
+    repo_gone,
     score_repo,
     select_projects,
 )
@@ -76,6 +77,12 @@ class GroupContributionsTest(unittest.TestCase):
         self.assertEqual(grouped["org/lib"]["pullRequests"], 2)
         self.assertEqual(grouped["org/lib"]["mergedPullRequests"], 1)
         self.assertEqual(grouped["friend/school"]["commits"], 1)
+
+    def test_only_missing_repos_are_skipped(self):
+        self.assertTrue(repo_gone(404))
+        self.assertTrue(repo_gone(451))
+        self.assertFalse(repo_gone(403))
+        self.assertFalse(repo_gone(502))
 
     def test_merged_prs_weigh_more_than_commits(self):
         merged = {"mergedPullRequests": 2, "pullRequests": 2, "commits": 0, "stars": 0}

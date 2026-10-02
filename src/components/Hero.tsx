@@ -24,19 +24,22 @@ export function Hero({ profile }: { profile: PortfolioData['profile'] }) {
 
   return (
     <section className="hero" id="top">
-      <div className="hero__bg" aria-hidden="true">
-        <DotGrid
-          dotSize={4}
-          gap={22}
-          baseColor={DOT_COLORS[theme].base}
-          activeColor={DOT_COLORS[theme].active}
-          proximity={120}
-          shockRadius={220}
-          shockStrength={4}
-          resistance={750}
-          returnDuration={1.5}
-        />
-      </div>
+      {/* O fundo interativo fica de fora para quem prefere menos movimento. */}
+      {!reducedMotion && (
+        <div className="hero__bg" aria-hidden="true">
+          <DotGrid
+            dotSize={4}
+            gap={22}
+            baseColor={DOT_COLORS[theme].base}
+            activeColor={DOT_COLORS[theme].active}
+            proximity={120}
+            shockRadius={220}
+            shockStrength={4}
+            resistance={750}
+            returnDuration={1.5}
+          />
+        </div>
+      )}
       <div className="container hero__inner">
         <div className="hero__text">
           <Reveal distance={20} duration={0.6}>
@@ -83,18 +86,18 @@ export function Hero({ profile }: { profile: PortfolioData['profile'] }) {
             )}
           </Reveal>
           <Reveal distance={20} delay={0.45} className="hero__cta">
-            <Magnet padding={40} magnetStrength={5}>
+            <Magnet padding={40} magnetStrength={5} disabled={reducedMotion}>
               <a className="button button--primary" href="#projects">
                 {t('hero.cta.projects')}
               </a>
             </Magnet>
-            <Magnet padding={40} magnetStrength={5}>
+            <Magnet padding={40} magnetStrength={5} disabled={reducedMotion}>
               <a className="button" href={profile.url} target="_blank" rel="noreferrer">
                 <GitHubIcon /> GitHub
               </a>
             </Magnet>
             {linkedin && (
-              <Magnet padding={40} magnetStrength={5}>
+              <Magnet padding={40} magnetStrength={5} disabled={reducedMotion}>
                 <a className="button" href={linkedin} target="_blank" rel="noreferrer">
                   <LinkedInIcon /> LinkedIn
                 </a>

@@ -45,7 +45,8 @@ jobs:
       - name: Buscar dados do GitHub
         env:
           # Opcional: crie o secret PORTFOLIO_TOKEN (PAT só leitura) para dados mais completos.
-          GITHUB_TOKEN: ${{ secrets.PORTFOLIO_TOKEN || secrets.GITHUB_TOKEN }}
+          # Em pull requests usa só o token temporário do workflow, para o código do PR não ter acesso ao PAT.
+          GITHUB_TOKEN: ${{ github.event_name != 'pull_request' && secrets.PORTFOLIO_TOKEN || secrets.GITHUB_TOKEN }}
         run: npm run data
 
       # Mostra o JSON gerado no log, para conferência e para a prévia do site.

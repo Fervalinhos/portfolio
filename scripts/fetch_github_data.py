@@ -191,6 +191,14 @@ def group_contributions(
     return grouped
 
 
+def repo_gone(status: int) -> bool:
+    """Repositório apagado ou bloqueado: pode ser ignorado.
+
+    Outros erros (rate limit, 5xx) não são ignorados, para não publicar dados incompletos.
+    """
+    return status in (404, 410, 451)
+
+
 def contribution_score(item: dict[str, Any]) -> float:
     return (
         item["mergedPullRequests"] * 5
@@ -295,7 +303,7 @@ query($login: String!) {
   user(login: $login) {
     repositoriesContributedTo(
       first: 50, privacy: PUBLIC, includeUserRepositories: false,
-      contributionTypes: [COMMIT, PULL_REQUEST, PULL_REQUEST_REVIEW]
+      contributionTypes: [COMMIT, PULL_REQUEST]
     ) { nodes { nameWithOwner } }
     contributionsCollection {
       contributionCalendar {
@@ -354,25 +362,24 @@ def collect(gh: GitHub, config: dict[str, Any]) -> dict[str, Any]:
     grouped = group_contributions(prs, commits, user)
 
     calendar = None
-    if gh.token:
-        try:
-            data = gh.graphql(CONTRIBUTED_QUERY, login=user)["user"]
-            for node in data["repositoriesContributedTo"]["nodes"]:
-                grouped.setdefault(
-                    node["nameWithOwner"],
-                    {"fullName": node["nameWithOwner"], "pullRequests": 0, "mergedPullRequests": 0, "commits": 0},
-                )
-            cal = data["contributionsCollection"]["contributionCalendar"]
-            calendar = {
-                "total": cal["totalContributions"],
-                "days": [
-                    {"date": d["date"], "count": d["contributionCount"]}
-                    for week in cal["weeks"]
-                    for d in week["contributionDays"]
-                ],
-            }
-        except (urllib.error.HTTPError, RuntimeError, KeyError, TypeError) as err:
-            print(f"  ! GraphQL indisponível: {err}", file=sys.stderr)
+    if gh.token:  # a API GraphQL exige autenticação
+        # Sem try/except: se falhar, o script falha e o site publicado continua o anterior,
+        # em vez de ser substituído por um sem calendário e sem contribuições do ano.
+        data = gh.graphql(CONTRIBUTED_QUERY, login=user)["user"]
+        for node in data["repositoriesContributedTo"]["nodes"]:
+            grouped.setdefault(
+                node["nameWithOwner"],
+                {"fullName": node["nameWithOwner"], "pullRequests": 0, "mergedPullRequests": 0, "commits": 0},
+            )
+        cal = data["contributionsCollection"]["contributionCalendar"]
+        calendar = {
+            "total": cal["totalContributions"],
+            "days": [
+                {"date": d["date"], "count": d["contributionCount"]}
+                for week in cal["weeks"]
+                for d in week["contributionDays"]
+            ],
+        }
 
     hidden = {name.lower() for name in config.get("contributions", {}).get("hidden", [])}
     contributions = []
@@ -381,8 +388,10 @@ def collect(gh: GitHub, config: dict[str, Any]) -> dict[str, Any]:
             continue
         try:
             info = gh.get(f"/repos/{full_name}")
-        except urllib.error.HTTPError:
-            continue
+        except urllib.error.HTTPError as err:
+            if repo_gone(err.code):  # apagado ou bloqueado: só pula
+                continue
+            raise
         if info.get("private"):
             continue
         item.update(
