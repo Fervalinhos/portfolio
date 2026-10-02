@@ -1,6 +1,7 @@
 import { useI18n } from '../lib/i18n'
 import { languageColor } from '../lib/languageColors'
 import type { Contribution } from '../types'
+import { Avatar } from './Avatar'
 import { CommitIcon, PullRequestIcon, StarIcon } from './Icons'
 
 export function Contributions({ items }: { items: Contribution[] }) {
@@ -15,7 +16,7 @@ export function Contributions({ items }: { items: Contribution[] }) {
         <div className="grid grid--wide">
           {items.map((item) => (
             <a className="card contrib" key={item.fullName} href={item.url} target="_blank" rel="noreferrer">
-              <img className="contrib__avatar" src={`${item.ownerAvatar}${item.ownerAvatar.includes('?') ? '&' : '?'}s=96`} alt="" width={44} height={44} loading="lazy" />
+              <Avatar className="contrib__avatar" src={item.ownerAvatar} name={item.fullName.split('/')[0]} size={44} />
               <div className="contrib__body">
                 <h3 className="contrib__name">
                   <span className="muted">{item.fullName.split('/')[0]}/</span>

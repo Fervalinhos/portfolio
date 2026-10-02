@@ -25,8 +25,9 @@
       // Aplica o tema salvo antes do primeiro render para evitar "piscar".
       try {
         var saved = localStorage.getItem('theme')
-        document.documentElement.dataset.theme =
-          saved || (matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light')
+        var root = document.documentElement
+        root.dataset.theme =
+          saved || root.dataset.theme || (matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light')
       } catch (e) {
         document.documentElement.dataset.theme = 'light'
       }

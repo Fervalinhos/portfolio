@@ -168,7 +168,7 @@ svg {
 /* ---------- Header ---------- */
 .header {
   position: sticky;
-  top: 0;
+  top: env(safe-area-inset-top, 0px);
   z-index: 10;
   background: color-mix(in srgb, var(--bg) 80%, transparent);
   backdrop-filter: saturate(180%) blur(12px);
@@ -319,8 +319,10 @@ svg {
   margin-top: 32px;
 }
 
-.hero__avatar img {
+.hero__avatar img,
+.hero__avatar .avatar-fallback {
   width: 240px;
+  font-size: 84px;
   height: 240px;
   border-radius: 50%;
   object-fit: cover;
@@ -328,6 +330,22 @@ svg {
   box-shadow:
     0 0 0 1px var(--border),
     var(--shadow-hover);
+}
+
+.avatar-fallback {
+  display: grid;
+  place-items: center;
+  flex-shrink: 0;
+  border-radius: 50%;
+  background: var(--accent-soft);
+  color: var(--accent);
+  font-weight: 800;
+  letter-spacing: -0.02em;
+}
+
+.contrib__avatar.avatar-fallback {
+  border-radius: 10px;
+  font-size: 17px;
 }
 
 /* ---------- Estatísticas ---------- */
@@ -798,7 +816,8 @@ svg {
     order: -1;
   }
 
-  .hero__avatar img {
+  .hero__avatar img,
+.hero__avatar .avatar-fallback {
     width: 128px;
     height: 128px;
     border-width: 4px;

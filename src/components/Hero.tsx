@@ -1,6 +1,7 @@
 import { config } from '../config'
 import { useI18n } from '../lib/i18n'
 import type { PortfolioData } from '../types'
+import { Avatar } from './Avatar'
 import { GitHubIcon, LinkedInIcon, PinIcon } from './Icons'
 
 export function Hero({ profile }: { profile: PortfolioData['profile'] }) {
@@ -35,7 +36,7 @@ export function Hero({ profile }: { profile: PortfolioData['profile'] }) {
           </div>
         </div>
         <div className="hero__avatar">
-          <img src={`${profile.avatarUrl}${profile.avatarUrl.includes('?') ? '&' : '?'}s=400`} alt={profile.name} width={240} height={240} />
+          <Avatar src={profile.avatarUrl} name={profile.name} size={240} />
         </div>
       </div>
     </section>
