@@ -1,0 +1,85 @@
+name: Build e deploy no GitHub Pages
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  # Atualiza os dados do GitHub todo dia às 06:00 UTC
+  schedule:
+    - cron: '0 6 * * *'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: actions/setup-python@v6
+        with:
+          python-version: '3.12'
+
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Instalar dependências
+        run: npm ci
+
+      - name: Testes do script Python
+        run: npm run test:py
+
+      - name: Lint
+        run: npm run lint
+
+      - name: Buscar dados do GitHub
+        env:
+          # Opcional: crie o secret PORTFOLIO_TOKEN (PAT só leitura) para dados mais completos.
+          # Em pull requests usa só o token temporário do workflow, para o código do PR não ter acesso ao PAT.
+          GITHUB_TOKEN: ${{ github.event_name != 'pull_request' && secrets.PORTFOLIO_TOKEN || secrets.GITHUB_TOKEN }}
+        run: npm run data
+
+      # Mostra o JSON gerado no log, para conferência e para a prévia do site.
+      - name: Mostrar dados gerados
+        run: |
+          echo "::group::github.json"
+          python3 -c "import json; print(json.dumps(json.load(open('public/data/github.json')), ensure_ascii=False))"
+          echo "::endgroup::"
+
+      - name: Configurar Pages
+        id: pages
+        if: github.event_name != 'pull_request'
+        uses: actions/configure-pages@v5
+
+      - name: Build do site
+        env:
+          BASE_PATH: ${{ steps.pages.outputs.base_path }}/
+        run: npm run build
+
+      - name: Enviar artefato
+        if: github.event_name != 'pull_request'
+        uses: actions/upload-pages-artifact@v4
+        with:
+          path: dist
+
+  deploy:
+    if: github.event_name != 'pull_request'
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Publicar no GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
