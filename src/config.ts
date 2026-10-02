@@ -10,6 +10,8 @@ export interface SiteConfig {
   name: string
   headline: Localized
   about: Localized
+  /** Tecnologias que giram no topo do site */
+  highlights?: string[]
   links: {
     linkedin: string
     email: string

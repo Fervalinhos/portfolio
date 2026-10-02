@@ -9,6 +9,13 @@
     "pt": "Desenvolvedor focado em JavaScript, React, Next.js e Node.js, com experiência em APIs com PostgreSQL e apps em React Native. Aqui estão os projetos que criei e os projetos em equipe em que contribuí.",
     "en": "Developer focused on JavaScript, React, Next.js and Node.js, with experience building APIs with PostgreSQL and React Native apps. Here are the projects I've built and the team projects I've contributed to."
   },
+  "highlights": [
+    "React",
+    "Next.js",
+    "Node.js",
+    "PostgreSQL",
+    "React Native"
+  ],
   "links": {
     "linkedin": "https://www.linkedin.com/in/seu-perfil",
     "email": "seu-email@exemplo.com",

@@ -8,7 +8,6 @@ import { Projects } from './components/Projects'
 import { Stats } from './components/Stats'
 import { config } from './config'
 import { useI18n } from './lib/i18n'
-import { useRevealOnScroll, useSpotlight } from './lib/motion'
 import type { PortfolioData } from './types'
 
 type State = { status: 'loading' } | { status: 'error' } | { status: 'ready'; data: PortfolioData }
@@ -26,9 +25,6 @@ export default function App() {
       .then((data) => setState({ status: 'ready', data }))
       .catch(() => setState({ status: 'error' }))
   }, [])
-
-  useRevealOnScroll(state.status === 'ready')
-  useSpotlight()
 
   useEffect(() => {
     if (state.status === 'ready') document.title = `${state.data.profile.name} · ${l(config.headline)}`
@@ -56,7 +52,6 @@ export default function App() {
   const { data } = state
   return (
     <>
-      <div className="scroll-progress" aria-hidden="true" />
       {data.sample && <div className="sample-banner">{t('sample.banner')}</div>}
       <Header name={data.profile.name} hasContributions={data.contributions.length > 0} />
       <main>

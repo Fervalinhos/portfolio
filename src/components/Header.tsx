@@ -1,27 +1,13 @@
 import { useEffect, useState } from 'react'
 import { useI18n } from '../lib/i18n'
+import { useTheme } from '../lib/theme'
 import { MoonIcon, SunIcon } from './Icons'
-
-type Theme = 'light' | 'dark'
-
-function currentTheme(): Theme {
-  return document.documentElement.dataset.theme === 'dark' ? 'dark' : 'light'
-}
 
 export function Header({ name, hasContributions }: { name: string; hasContributions: boolean }) {
   const { t, lang, setLang } = useI18n()
-  const [theme, setTheme] = useState<Theme>(currentTheme)
+  const { theme, toggleTheme } = useTheme()
   const [scrolled, setScrolled] = useState(false)
   const [active, setActive] = useState('')
-
-  useEffect(() => {
-    document.documentElement.dataset.theme = theme
-    try {
-      localStorage.setItem('theme', theme)
-    } catch {
-      // ignora
-    }
-  }, [theme])
 
   useEffect(() => {
     const onScroll = () => {
@@ -88,9 +74,11 @@ export function Header({ name, hasContributions }: { name: string; hasContributi
             className="icon-button"
             aria-label={t('theme.toggle')}
             title={t('theme.toggle')}
-            onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
+            onClick={toggleTheme}
           >
-            {theme === 'dark' ? <SunIcon /> : <MoonIcon />}
+            <span className="theme-icon" key={theme}>
+              {theme === 'dark' ? <SunIcon /> : <MoonIcon />}
+            </span>
           </button>
         </div>
       </div>
