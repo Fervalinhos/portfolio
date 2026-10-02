@@ -100,6 +100,13 @@ class ReadmeSummaryTest(unittest.TestCase):
         md = "# app\n\nThis project was bootstrapped with Create React App, a tool from Meta.\n"
         self.assertEqual(readme_summary(md), "")
 
+    def test_ignores_next_js_template_instructions(self):
+        md = (
+            "This is a [Next.js](https://nextjs.org) project bootstrapped with `create-next-app`.\n\n"
+            "## Getting Started\n\nFirst, run the development server:\n\n```bash\nnpm run dev\n```\n"
+        )
+        self.assertEqual(readme_summary(md), "")
+
     def test_truncates_long_text(self):
         summary = readme_summary("palavra " * 100, limit=50)
         self.assertTrue(summary.endswith("…"))

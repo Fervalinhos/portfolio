@@ -210,6 +210,9 @@ BOILERPLATE = (
     "this is an [expo]",
     "this is a new [**react native**]",
     "getting started",
+    "run the development server",
+    "npm run dev",
+    "localhost:",
 )
 
 
@@ -234,7 +237,8 @@ def readme_summary(markdown: str, limit: int = 200) -> str:
         clean = re.sub(r"\[([^\]]+)\]\([^)]*\)", r"\1", clean)  # links -> texto
         clean = re.sub(r"<[^>]+>", "", clean)
         clean = re.sub(r"[*_`]{1,3}", "", clean).strip()
-        if len(clean) < 30 or any(marker in clean.lower() for marker in BOILERPLATE):
+        # Parágrafos que terminam em ":" costumam só apresentar um bloco de código.
+        if len(clean) < 30 or clean.endswith(":") or any(marker in clean.lower() for marker in BOILERPLATE):
             continue
         if len(clean) > limit:
             clean = clean[:limit].rsplit(" ", 1)[0].rstrip(",.;:") + "…"
