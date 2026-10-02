@@ -48,13 +48,12 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.PORTFOLIO_TOKEN || secrets.GITHUB_TOKEN }}
         run: npm run data
 
-      # Guarda o JSON gerado para conferência e para a prévia do site.
-      - name: Salvar dados gerados
-        uses: actions/upload-artifact@v4
-        with:
-          name: github-data
-          path: public/data/github.json
-          retention-days: 7
+      # Mostra o JSON gerado no log, para conferência e para a prévia do site.
+      - name: Mostrar dados gerados
+        run: |
+          echo "::group::github.json"
+          python3 -c "import json; print(json.dumps(json.load(open('public/data/github.json')), ensure_ascii=False))"
+          echo "::endgroup::"
 
       - name: Configurar Pages
         id: pages
