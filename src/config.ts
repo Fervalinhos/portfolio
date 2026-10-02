@@ -18,4 +18,5 @@ export interface SiteConfig {
   }
 }
 
-export const config = raw as SiteConfig
+// Anotação (e não "as") para o TypeScript validar o JSON editado à mão.
+export const config: SiteConfig = raw

@@ -11,7 +11,7 @@ function levels(days: CalendarDay[]): (count: number) => number {
 }
 
 export function Calendar({ total, days }: { total: number; days: CalendarDay[] }) {
-  const { t, formatNumber, formatDate } = useI18n()
+  const { t, lang, formatNumber, formatDate } = useI18n()
   const scroller = useRef<HTMLDivElement>(null)
   const level = levels(days)
 
@@ -20,6 +20,12 @@ export function Calendar({ total, days }: { total: number; days: CalendarDay[] }
     const el = scroller.current
     if (el) el.scrollLeft = el.scrollWidth
   }, [])
+
+  // Totais por mês: versão acessível do gráfico para leitores de tela.
+  const months = new Map<string, number>()
+  for (const day of days) months.set(day.date.slice(0, 7), (months.get(day.date.slice(0, 7)) ?? 0) + day.count)
+  const monthLabel = (key: string) =>
+    new Date(`${key}-15T12:00:00`).toLocaleDateString(lang === 'pt' ? 'pt-BR' : 'en-US', { month: 'long', year: 'numeric' })
 
   // Alinha a primeira coluna no domingo, como no GitHub.
   const offset = days.length ? new Date(`${days[0].date}T00:00:00`).getDay() : 0
@@ -30,7 +36,24 @@ export function Calendar({ total, days }: { total: number; days: CalendarDay[] }
         <h3>{t('calendar.title')}</h3>
         <span className="muted">{t('calendar.total', { n: formatNumber(total) })}</span>
       </div>
-      <div className="calendar__scroll" ref={scroller}>
+      <table className="sr-only">
+        <caption>{t('calendar.title')}</caption>
+        <thead>
+          <tr>
+            <th scope="col">{t('calendar.month')}</th>
+            <th scope="col">{t('calendar.count')}</th>
+          </tr>
+        </thead>
+        <tbody>
+          {[...months].map(([key, count]) => (
+            <tr key={key}>
+              <th scope="row">{monthLabel(key)}</th>
+              <td>{count}</td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+      <div className="calendar__scroll" ref={scroller} aria-hidden="true">
         <div className="calendar__grid">
           {Array.from({ length: offset }, (_, i) => (
             <span key={`pad-${i}`} className="calendar__cell calendar__cell--empty" />
@@ -44,7 +67,7 @@ export function Calendar({ total, days }: { total: number; days: CalendarDay[] }
           ))}
         </div>
       </div>
-      <div className="calendar__legend muted">
+      <div className="calendar__legend muted" aria-hidden="true">
         {t('calendar.less')}
         {[0, 1, 2, 3, 4].map((n) => (
           <span key={n} className={`calendar__cell lvl-${n}`} />

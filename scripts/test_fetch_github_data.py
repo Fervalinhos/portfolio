@@ -120,6 +120,11 @@ class LanguageBreakdownTest(unittest.TestCase):
         self.assertEqual(len(result), 9)
         self.assertEqual(result[-1], {"name": "Other", "percent": 20.0})
 
+    def test_limit_groups_the_rest_as_other(self):
+        result = language_breakdown({f"L{i}": 10 for i in range(6)}, limit=5)
+        self.assertEqual([r["name"] for r in result][-1], "Other")
+        self.assertAlmostEqual(sum(r["percent"] for r in result), 100, delta=0.5)
+
     def test_empty(self):
         self.assertEqual(language_breakdown(Counter()), [])
 

@@ -246,11 +246,13 @@ def readme_summary(markdown: str, limit: int = 200) -> str:
     return ""
 
 
-def language_breakdown(totals: Counter[str]) -> list[dict[str, Any]]:
+def language_breakdown(totals: Counter[str] | dict[str, int], limit: int = TOP_LANGUAGES) -> list[dict[str, Any]]:
+    """Percentual das `limit` linguagens principais; o restante vira "Other"."""
+    totals = Counter(totals)
     total = sum(totals.values())
     if not total:
         return []
-    top = totals.most_common(TOP_LANGUAGES)
+    top = totals.most_common(limit)
     result = [{"name": name, "percent": round(value * 100 / total, 1)} for name, value in top]
     rest = total - sum(value for _, value in top)
     if rest > 0:
@@ -262,7 +264,6 @@ def language_breakdown(totals: Counter[str]) -> list[dict[str, Any]]:
 # Coleta
 # --------------------------------------------------------------------------- #
 def project_payload(repo: dict[str, Any], languages: dict[str, int]) -> dict[str, Any]:
-    total = sum(languages.values()) or 1
     return {
         "name": repo["name"],
         "fullName": repo["full_name"],
@@ -270,10 +271,7 @@ def project_payload(repo: dict[str, Any], languages: dict[str, int]) -> dict[str
         "url": repo["html_url"],
         "homepage": repo.get("homepage") or "",
         "language": repo.get("language") or "",
-        "languages": [
-            {"name": name, "percent": round(value * 100 / total, 1)}
-            for name, value in sorted(languages.items(), key=lambda kv: -kv[1])[:5]
-        ],
+        "languages": language_breakdown(languages, limit=5),
         "topics": repo.get("topics") or [],
         "stars": repo.get("stargazers_count", 0),
         "forks": repo.get("forks_count", 0),
@@ -349,15 +347,10 @@ def collect(gh: GitHub, config: dict[str, Any]) -> dict[str, Any]:
         projects.append(payload)
 
     print("→ Contribuições em outros repositórios")
-    prs, commits = [], []
-    try:
-        prs = gh.paginate("/search/issues", limit=300, q=f"author:{user} type:pr -user:{user}")
-    except urllib.error.HTTPError as err:
-        print(f"  ! busca de PRs falhou: {err}", file=sys.stderr)
-    try:
-        commits = gh.paginate("/search/commits", limit=300, q=f"author:{user} -user:{user}")
-    except urllib.error.HTTPError as err:
-        print(f"  ! busca de commits falhou: {err}", file=sys.stderr)
+    # Se uma dessas buscas falhar, o script falha também: melhor manter o site
+    # publicado do que substituí-lo por um sem as contribuições.
+    prs = gh.paginate("/search/issues", limit=300, q=f"author:{user} type:pr -user:{user}")
+    commits = gh.paginate("/search/commits", limit=300, q=f"author:{user} -user:{user}")
     grouped = group_contributions(prs, commits, user)
 
     calendar = None
