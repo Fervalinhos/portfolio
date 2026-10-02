@@ -2,8 +2,8 @@ import { useI18n } from '../lib/i18n'
 import { languageColor } from '../lib/languageColors'
 import type { Contribution } from '../types'
 import { Avatar } from './Avatar'
-import { GlareCard } from './GlareCard'
 import { CommitIcon, PullRequestIcon, StarIcon } from './Icons'
+import { P3Card, P3Title } from './P3Card'
 import { Reveal } from './Reveal'
 
 export function Contributions({ items }: { items: Contribution[] }) {
@@ -19,15 +19,15 @@ export function Contributions({ items }: { items: Contribution[] }) {
         </Reveal>
         <div className="grid grid--wide">
           {items.map((item, i) => (
-            <Reveal key={item.fullName} delay={(i % 2) * 0.1}>
-              <GlareCard className="contrib-card">
+            <Reveal key={item.fullName} direction="horizontal" distance={60} duration={1.1} delay={(i % 2) * 0.15}>
+              <P3Card className="contrib-card">
                 <a className="contrib" href={item.url} target="_blank" rel="noreferrer">
                   <Avatar className="contrib__avatar" src={item.ownerAvatar} name={item.fullName.split('/')[0]} size={44} />
                   <div className="contrib__body">
-                    <h3 className="contrib__name">
+                    <P3Title className="contrib__name">
                       <span className="muted">{item.fullName.split('/')[0]}/</span>
                       {item.fullName.split('/')[1]}
-                    </h3>
+                    </P3Title>
                     {item.description && <p className="contrib__desc">{item.description}</p>}
                     <div className="project__meta">
                       {item.language && (
@@ -58,7 +58,7 @@ export function Contributions({ items }: { items: Contribution[] }) {
                     </div>
                   </div>
                 </a>
-              </GlareCard>
+              </P3Card>
             </Reveal>
           ))}
         </div>

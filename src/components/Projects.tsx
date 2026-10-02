@@ -3,8 +3,8 @@ import { useI18n } from '../lib/i18n'
 import { languageColor } from '../lib/languageColors'
 import type { Project } from '../types'
 import { ExternalIcon, ForkIcon, GitHubIcon, StarIcon } from './Icons'
-import { GlareCard } from './GlareCard'
 import { LanguageBar } from './LanguageBar'
+import { P3Card, P3Title } from './P3Card'
 import { Reveal } from './Reveal'
 
 function prettyName(name: string): string {
@@ -16,13 +16,13 @@ function ProjectCard({ project }: { project: Project }) {
   const demo = project.homepage && !/^https?:\/\//.test(project.homepage) ? `https://${project.homepage}` : project.homepage
 
   return (
-    <GlareCard className="project">
+    <P3Card className="project">
       <div className="project__head">
-        <h3 className="project__name">
+        <P3Title className="project__name">
           <a href={project.url} target="_blank" rel="noreferrer">
             {prettyName(project.name)}
           </a>
-        </h3>
+        </P3Title>
         {project.isArchived && <span className="badge">{t('projects.archived')}</span>}
       </div>
       {project.description && <p className="project__desc">{project.description}</p>}
@@ -64,7 +64,7 @@ function ProjectCard({ project }: { project: Project }) {
           </a>
         )}
       </div>
-    </GlareCard>
+    </P3Card>
   )
 }
 
@@ -109,7 +109,7 @@ export function Projects({ projects }: { projects: Project[] }) {
         {visible.length ? (
           <div className="grid" key={filter ?? 'all'}>
             {visible.map((project, i) => (
-              <Reveal key={project.fullName} delay={(i % 3) * 0.1}>
+              <Reveal key={project.fullName} direction="horizontal" distance={60} duration={1.1} delay={(i % 3) * 0.15}>
                 <ProjectCard project={project} />
               </Reveal>
             ))}

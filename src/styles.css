@@ -19,6 +19,12 @@
   --radius: 14px;
   --font: 'Inter', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
   --mono: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, monospace;
+  --display: 'Barlow Condensed', 'Arial Narrow', Impact, sans-serif;
+  /* Paleta dos menus de Persona 3 Reload (a mesma da boss battle do perfil) */
+  --p3-cyan: #2fd4ff;
+  --p3-slab: #06205e;
+  --p3-slab-text: #ffffff;
+  --p3-echo: rgb(47 212 255 / 0.55);
   color-scheme: light;
 }
 
@@ -40,6 +46,9 @@
   --cal-2: #4549b0;
   --cal-3: #6c6fe6;
   --cal-4: #a5b4fc;
+  --p3-slab: #ffffff;
+  --p3-slab-text: #06205e;
+  --p3-echo: rgb(47 212 255 / 0.6);
   color-scheme: dark;
 }
 
@@ -431,6 +440,8 @@ svg {
 /* ---------- Seções ---------- */
 .section {
   padding: 72px 0;
+  /* os cards entram deslizando da direita */
+  overflow-x: clip;
 }
 
 .section--alt {
@@ -609,28 +620,92 @@ svg {
   grid-template-columns: repeat(auto-fill, minmax(420px, 1fr));
 }
 
-/* Cards com reflexo no hover (React Bits GlareHover) */
-.card.glare-hover {
+/* Cards no estilo dos menus de Persona 3 (P3Card): painel com cantos cortados,
+   sombra ciano que se desloca e faixa inclinada atrás do título ao selecionar */
+.p3card {
+  --cut: 18px;
+  --shape: polygon(var(--cut) 0, 100% 0, 100% calc(100% - var(--cut)), calc(100% - var(--cut)) 100%, 0 100%, 0 var(--cut));
+  position: relative;
+  height: 100%;
+}
+
+.p3card__shadow {
+  position: absolute;
+  inset: 0;
+  clip-path: var(--shape);
+  background: var(--p3-cyan);
+  opacity: 0;
+}
+
+.p3card__panel {
+  position: relative;
+  height: 100%;
+  padding: 1px;
+  clip-path: var(--shape);
+  background: var(--border);
+  transition: background 0.5s;
+}
+
+.p3card.is-active .p3card__panel {
+  background: var(--p3-cyan);
+}
+
+.p3card__inner {
   display: flex;
   flex-direction: column;
-  place-items: normal;
-  border-color: var(--border);
-  cursor: auto;
+  height: 100%;
+  padding: 24px;
+  clip-path: var(--shape);
+  background: var(--surface);
+}
+
+.p3-title {
+  --slab-left: -24px;
+  position: relative;
+  z-index: 0;
+  align-self: flex-start;
+  font-family: var(--display);
+  font-style: italic;
+  font-weight: 800;
+  letter-spacing: 0.01em;
+  line-height: 1.15;
   transition:
-    box-shadow 0.2s,
-    border-color 0.2s;
+    color 0.35s 0.15s,
+    text-shadow 0.5s 0.15s;
 }
 
-.card.glare-hover:hover {
-  border-color: color-mix(in srgb, var(--accent) 40%, var(--border));
-  box-shadow: var(--shadow-hover);
+.p3-title__text {
+  display: inline-block;
 }
 
-.glare-hover::before {
-  pointer-events: none;
+.p3-title__slab {
+  position: absolute;
+  z-index: -1;
+  inset: -5px auto -5px var(--slab-left);
+  /* como nos menus do jogo, a faixa tem uma largura mínima mesmo para nomes curtos */
+  width: max(calc(100% - var(--slab-left) + 20px), 190px);
+  background: var(--p3-slab);
+  transform: scaleX(0);
 }
 
-.project {
+.p3-title__slab--echo {
+  background: var(--p3-cyan);
+  translate: 6px 5px;
+}
+
+.p3card.is-active .p3-title {
+  color: var(--p3-slab-text);
+  text-shadow:
+    -4px 0 var(--p3-echo),
+    -9px 0 color-mix(in srgb, var(--p3-echo) 45%, transparent);
+}
+
+.p3card.is-active .p3-title .muted {
+  color: inherit;
+  opacity: 0.75;
+}
+
+.project .p3card__inner {
   gap: 14px;
 }
 
@@ -642,11 +717,8 @@ svg {
 }
 
 .project__name {
-  font-size: 19px;
-}
-
-.project__name a:hover {
-  color: var(--accent);
+  font-size: 25px;
+  text-transform: uppercase;
 }
 
 .project__desc,
@@ -708,7 +780,7 @@ svg {
 }
 
 /* ---------- Contribuições ---------- */
-.card.contrib-card {
+.contrib-card .p3card__inner {
   padding: 0;
 }
 
@@ -734,7 +806,8 @@ svg {
 }
 
 .contrib__name {
-  font-size: 17px;
+  --slab-left: -12px;
+  font-size: 21px;
   overflow-wrap: anywhere;
 }
 
@@ -959,11 +1032,17 @@ svg {
     font-size: 26px;
   }
 
-  .card {
+  .card,
+  .p3card__inner,
+  .contrib {
     padding: 20px;
   }
 
-  .contrib {
-    padding: 20px;
+  .p3-title {
+    --slab-left: -20px;
+  }
+
+  .contrib__name {
+    --slab-left: -10px;
   }
 }

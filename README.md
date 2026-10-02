@@ -10,7 +10,7 @@ Site de portfólio gerado automaticamente a partir do meu GitHub: projetos que c
 | --- | --- |
 | Dados | Python 3 (só biblioteca padrão) consultando a API REST e GraphQL do GitHub |
 | Site | React 19 + TypeScript + Vite |
-| Efeitos | [React Bits](https://reactbits.dev) (em `src/components/reactbits/`), com Motion e GSAP |
+| Efeitos | [React Bits](https://reactbits.dev) (em `src/components/reactbits/`), com Motion e GSAP; cards no estilo dos menus de Persona 3 Reload (`src/components/P3Card.tsx`) |
 | Hospedagem | GitHub Pages, publicado por GitHub Actions |
 
 ## Como funciona
