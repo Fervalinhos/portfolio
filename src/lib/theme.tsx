@@ -1,11 +1,11 @@
-import { createContext, useCallback, useContext, useEffect, useState, type ReactNode } from 'react'
+import { createContext, useCallback, useContext, useEffect, useState, type MouseEvent, type ReactNode } from 'react'
 import { flushSync } from 'react-dom'
 
 export type Theme = 'light' | 'dark'
 
 interface ThemeContextValue {
   theme: Theme
-  toggleTheme: () => void
+  toggleTheme: (event: MouseEvent<HTMLElement>) => void
 }
 
 const ThemeContext = createContext<ThemeContextValue | null>(null)
@@ -25,7 +25,7 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
     }
   }, [theme])
 
-  const toggleTheme = useCallback(() => {
+  const toggleTheme = useCallback((event: MouseEvent<HTMLElement>) => {
     const next: Theme = readTheme() === 'dark' ? 'light' : 'dark'
     const apply = () => {
       document.documentElement.dataset.theme = next
@@ -38,16 +38,16 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
       return
     }
 
-    // O novo tema entra numa faixa diagonal que atravessa a tela, como as transições de menu de Persona 3 Reload.
+    // O novo tema se espalha num círculo a partir do botão (View Transitions API).
+    const rect = event.currentTarget.getBoundingClientRect()
+    const x = rect.left + rect.width / 2
+    const y = rect.top + rect.height / 2
+    const radius = Math.hypot(Math.max(x, window.innerWidth - x), Math.max(y, window.innerHeight - y))
+
     document.startViewTransition(apply).ready.then(() => {
       document.documentElement.animate(
-        {
-          clipPath: [
-            'polygon(-30% 0, -30% 0, -60% 100%, -60% 100%)',
-            'polygon(-30% 0, 160% 0, 130% 100%, -60% 100%)',
-          ],
-        },
-        { duration: 750, easing: 'cubic-bezier(0.65, 0, 0.35, 1)', pseudoElement: '::view-transition-new(root)' },
+        { clipPath: [`circle(0px at ${x}px ${y}px)`, `circle(${radius}px at ${x}px ${y}px)`] },
+        { duration: 650, easing: 'cubic-bezier(0.65, 0, 0.35, 1)', pseudoElement: '::view-transition-new(root)' },
       )
     })
   }, [])

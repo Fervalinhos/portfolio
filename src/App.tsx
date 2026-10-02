@@ -55,7 +55,7 @@ export default function App() {
       {data.sample && <div className="sample-banner">{t('sample.banner')}</div>}
       <Header name={data.profile.name} hasContributions={data.contributions.length > 0} />
       <main>
-        <Hero profile={data.profile} stats={data.stats} />
+        <Hero profile={data.profile} />
         <Stats stats={data.stats} />
         <About data={data} />
         <Projects projects={data.projects} />
