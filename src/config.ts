@@ -12,6 +12,8 @@ export interface SiteConfig {
   about: Localized
   /** Tecnologias que giram no topo do site */
   highlights?: string[]
+  /** Stack por área, exibida em "Sobre mim" */
+  stack?: { label: Localized; items: string[] }[]
   links: {
     linkedin: string
     email: string

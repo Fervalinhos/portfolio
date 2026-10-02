@@ -28,6 +28,8 @@ Edite `portfolio.config.json`:
 | --- | --- |
 | `name` | Nome exibido (vazio = nome do perfil do GitHub) |
 | `headline`, `about` | Título e texto "Sobre mim" em português e inglês |
+| `highlights` | Tecnologias que giram no topo do site |
+| `stack` | Stack por área (rótulo em português e inglês + itens), exibida em "Sobre mim" |
 | `links.linkedin` | URL do seu LinkedIn |
 | `links.email`, `links.website`, `links.resume` | Contato, site e link para o currículo (PDF) |
 | `projects.featured` | Nomes de repositórios que devem aparecer primeiro, na ordem dada |

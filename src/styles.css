@@ -411,19 +411,42 @@ svg {
   padding-bottom: 24px;
 }
 
+.stats__inner {
+  position: relative;
+}
+
+/* Fluido (React Bits LiquidEther) atrás dos cards, um pouco maior que a grade */
+.stats__fluid {
+  position: absolute;
+  inset: -28px 0;
+  z-index: 0;
+  /* o fluido lê o mouse pela janela; sem isso a área bloquearia a rolagem no celular */
+  pointer-events: none;
+  /* bordas suaves, sem o retângulo do canvas aparecendo */
+  mask-image:
+    linear-gradient(to right, transparent, #000 6%, #000 94%, transparent),
+    linear-gradient(to bottom, transparent, #000 30%, #000 70%, transparent);
+  mask-composite: intersect;
+}
+
 .stats__grid {
+  position: relative;
+  z-index: 1;
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
   gap: 16px;
 }
 
+/* Cards de vidro: o fluido aparece desfocado por trás */
 .stat {
   display: flex;
   flex-direction: column;
   padding: 20px 24px;
-  border: 1px solid var(--border);
+  border: 1px solid color-mix(in srgb, var(--border) 80%, transparent);
   border-radius: var(--radius);
-  background: var(--surface);
+  background: color-mix(in srgb, var(--surface) 50%, transparent);
+  backdrop-filter: blur(14px) saturate(150%);
+  -webkit-backdrop-filter: blur(14px) saturate(150%);
 }
 
 .stat__value {
@@ -488,6 +511,35 @@ svg {
 
 .about__calendar {
   grid-column: 1 / -1;
+}
+
+/* Stack por área (portfolio.config.json → stack) */
+.stack {
+  display: grid;
+  gap: 12px;
+  margin: 24px 0 0;
+}
+
+.stack__group {
+  display: grid;
+  grid-template-columns: 128px minmax(0, 1fr);
+  align-items: baseline;
+  gap: 12px;
+}
+
+.stack__group dt {
+  color: var(--text-muted);
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.stack__group dd {
+  margin: 0;
+}
+
+.stack .tags li {
+  padding: 3px 12px;
+  font-size: 13px;
 }
 
 /* ---------- Barra de linguagens ---------- */
@@ -1097,6 +1149,11 @@ svg {
   .grid,
   .grid--wide {
     grid-template-columns: minmax(0, 1fr);
+  }
+
+  .stack__group {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 6px;
   }
 
   .carousel__slide {
