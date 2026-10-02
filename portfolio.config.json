@@ -1,0 +1,28 @@
+{
+  "githubUser": "Fervalinhos",
+  "name": "",
+  "headline": {
+    "pt": "Desenvolvedor de Software",
+    "en": "Software Developer"
+  },
+  "about": {
+    "pt": "Desenvolvedor apaixonado por construir soluções úteis com código limpo. Aqui estão os projetos que criei e os repositórios open source com que contribuí.",
+    "en": "Developer who enjoys building useful things with clean code. Here are the projects I've built and the open source repositories I've contributed to."
+  },
+  "links": {
+    "linkedin": "",
+    "email": "",
+    "website": "",
+    "resume": ""
+  },
+  "projects": {
+    "featured": [],
+    "hidden": ["portfolio"],
+    "includeForks": false,
+    "max": 12
+  },
+  "contributions": {
+    "hidden": [],
+    "max": 8
+  }
+}
