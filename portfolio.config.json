@@ -17,7 +17,13 @@
   },
   "projects": {
     "featured": [],
-    "hidden": ["portfolio"],
+    "hidden": [
+      "portfolio",
+      "my-first-repository",
+      "testeDogit-matheus",
+      "teste3",
+      "isso-talvez-ajude"
+    ],
     "includeForks": false,
     "max": 12
   },

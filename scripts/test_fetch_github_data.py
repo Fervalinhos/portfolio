@@ -8,6 +8,7 @@ from fetch_github_data import (
     contribution_score,
     group_contributions,
     language_breakdown,
+    readme_summary,
     score_repo,
     select_projects,
 )
@@ -22,6 +23,7 @@ def repo(name, **extra):
         "stargazers_count": 0,
         "forks_count": 0,
         "size": 100,
+        "language": "Python",
         "pushed_at": "2026-09-01T00:00:00Z",
     }
     return {**base, **extra}
@@ -50,6 +52,12 @@ class SelectProjectsTest(unittest.TestCase):
         names = [r["name"] for r in select_projects(repos, config, "dev", NOW)]
         self.assertEqual(names, ["first", "second", "popular"])
 
+    def test_skips_repos_without_code_unless_featured(self):
+        repos = [repo("empty", language=None), repo("kept-empty", language=None), repo("app")]
+        config = {"projects": {"featured": ["kept-empty"], "max": 10}}
+        names = [r["name"] for r in select_projects(repos, config, "dev", NOW)]
+        self.assertEqual(names, ["kept-empty", "app"])
+
     def test_respects_max(self):
         repos = [repo(f"r{i}") for i in range(5)]
         self.assertEqual(len(select_projects(repos, {"projects": {"max": 2}}, "dev", NOW)), 2)
@@ -73,6 +81,29 @@ class GroupContributionsTest(unittest.TestCase):
         merged = {"mergedPullRequests": 2, "pullRequests": 2, "commits": 0, "stars": 0}
         commits = {"mergedPullRequests": 0, "pullRequests": 0, "commits": 5, "stars": 0}
         self.assertGreater(contribution_score(merged), contribution_score(commits))
+
+
+class ReadmeSummaryTest(unittest.TestCase):
+    def test_takes_first_real_paragraph(self):
+        md = (
+            "# Projeto\n\n[![build](https://x/badge.svg)](https://x)\n\n"
+            "- item de lista\n\n"
+            "Aplicativo **feito em equipe** para [doações](https://x) ao Rio Grande do Sul.\n"
+            "Segunda linha do parágrafo.\n\nOutro parágrafo."
+        )
+        self.assertEqual(
+            readme_summary(md),
+            "Aplicativo feito em equipe para doações ao Rio Grande do Sul. Segunda linha do parágrafo.",
+        )
+
+    def test_ignores_template_boilerplate(self):
+        md = "# app\n\nThis project was bootstrapped with Create React App, a tool from Meta.\n"
+        self.assertEqual(readme_summary(md), "")
+
+    def test_truncates_long_text(self):
+        summary = readme_summary("palavra " * 100, limit=50)
+        self.assertTrue(summary.endswith("…"))
+        self.assertLessEqual(len(summary), 51)
 
 
 class LanguageBreakdownTest(unittest.TestCase):

@@ -15,9 +15,11 @@ Só usa a biblioteca padrão do Python, então não precisa de `pip install`.
 from __future__ import annotations
 
 import argparse
+import base64
 import json
 import math
 import os
+import re
 import shutil
 import sys
 import time
@@ -147,6 +149,8 @@ def select_projects(
             continue
         if repo.get("private"):
             continue
+        if not repo.get("language") and name not in featured:  # repositório sem código
+            continue
         candidates.append({**repo, "_score": score_repo(repo, now)})
 
     def order(repo: dict[str, Any]) -> tuple[int, float]:
@@ -196,6 +200,48 @@ def contribution_score(item: dict[str, Any]) -> float:
     )
 
 
+# Trechos de READMEs gerados por templates, que não descrevem o projeto.
+BOILERPLATE = (
+    "bootstrapped with",
+    "this template provides",
+    "create react app",
+    "create-next-app",
+    "create-expo-app",
+    "this is an [expo]",
+    "this is a new [**react native**]",
+    "getting started",
+)
+
+
+def readme_summary(markdown: str, limit: int = 200) -> str:
+    """Extrai o primeiro parágrafo de texto de um README para usar como descrição."""
+    text = re.sub(r"<!--.*?-->", "", markdown, flags=re.S)
+    text = re.sub(r"```.*?```", "", text, flags=re.S)
+    paragraphs: list[str] = []
+    current: list[str] = []
+    for raw in text.splitlines() + [""]:
+        line = raw.strip()
+        skip = line.startswith(("#", "!", "[!", "<", "|", "---", "===", ">", "- ", "* ", "+ "))
+        if not line or skip:
+            if current:
+                paragraphs.append(" ".join(current))
+                current = []
+            continue
+        current.append(line)
+
+    for paragraph in paragraphs:
+        clean = re.sub(r"!\[[^\]]*\]\([^)]*\)", "", paragraph)  # imagens
+        clean = re.sub(r"\[([^\]]+)\]\([^)]*\)", r"\1", clean)  # links -> texto
+        clean = re.sub(r"<[^>]+>", "", clean)
+        clean = re.sub(r"[*_`]{1,3}", "", clean).strip()
+        if len(clean) < 30 or any(marker in clean.lower() for marker in BOILERPLATE):
+            continue
+        if len(clean) > limit:
+            clean = clean[:limit].rsplit(" ", 1)[0].rstrip(",.;:") + "…"
+        return clean
+    return ""
+
+
 def language_breakdown(totals: Counter[str]) -> list[dict[str, Any]]:
     total = sum(totals.values())
     if not total:
@@ -232,6 +278,14 @@ def project_payload(repo: dict[str, Any], languages: dict[str, int]) -> dict[str
         "createdAt": repo.get("created_at"),
         "pushedAt": repo.get("pushed_at"),
     }
+
+
+def fetch_readme_summary(gh: GitHub, full_name: str) -> str:
+    try:
+        data = gh.get(f"/repos/{full_name}/readme")
+        return readme_summary(base64.b64decode(data.get("content", "")).decode("utf-8", "replace"))
+    except (urllib.error.HTTPError, ValueError):
+        return ""
 
 
 CONTRIBUTED_QUERY = """
@@ -285,7 +339,10 @@ def collect(gh: GitHub, config: dict[str, Any]) -> dict[str, Any]:
                 langs = gh.get(f"/repos/{repo['full_name']}/languages")
             except urllib.error.HTTPError:
                 langs = {}
-        projects.append(project_payload(repo, langs))
+        payload = project_payload(repo, langs)
+        if not payload["description"]:
+            payload["description"] = fetch_readme_summary(gh, repo["full_name"])
+        projects.append(payload)
 
     print("→ Contribuições em outros repositórios")
     prs, commits = [], []
@@ -344,6 +401,9 @@ def collect(gh: GitHub, config: dict[str, Any]) -> dict[str, Any]:
         contributions.append(item)
     contributions.sort(key=contribution_score, reverse=True)
     contributions = contributions[: config.get("contributions", {}).get("max", 8)]
+    for item in contributions:
+        if not item["description"]:
+            item["description"] = fetch_readme_summary(gh, item["fullName"])
 
     created = _parse_date(profile.get("created_at"))
     return {
