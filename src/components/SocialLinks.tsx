@@ -1,3 +1,4 @@
+import type { CSSProperties } from 'react'
 import { config } from '../config'
 import { useI18n } from '../lib/i18n'
 import { FileIcon, GitHubIcon, GlobeIcon, LinkedInIcon, MailIcon } from './Icons'
@@ -9,7 +10,7 @@ export function SocialLinks({ githubUrl, website }: { githubUrl: string; website
   const siteHref = site && !/^https?:\/\//.test(site) ? `https://${site}` : site
 
   return (
-    <ul className="social">
+    <ul className="social" data-reveal style={{ '--d': 2 } as CSSProperties}>
       <li>
         <a href={githubUrl} target="_blank" rel="noreferrer">
           <GitHubIcon /> GitHub

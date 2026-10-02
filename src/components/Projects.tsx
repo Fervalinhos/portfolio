@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react'
+import { useMemo, useState, type CSSProperties } from 'react'
 import { useI18n } from '../lib/i18n'
 import { languageColor } from '../lib/languageColors'
 import type { Project } from '../types'
@@ -9,12 +9,17 @@ function prettyName(name: string): string {
   return name.replace(/[-_]+/g, ' ').replace(/\b\w/g, (c) => c.toUpperCase())
 }
 
-function ProjectCard({ project }: { project: Project }) {
+function ProjectCard({ project, index, entering }: { project: Project; index: number; entering: boolean }) {
   const { t, formatDate } = useI18n()
   const demo = project.homepage && !/^https?:\/\//.test(project.homepage) ? `https://${project.homepage}` : project.homepage
 
   return (
-    <article className="card project">
+    <article
+      className={`card project${entering ? ' card-enter' : ''}`}
+      data-reveal
+      data-spotlight
+      style={{ '--d': index % 3 } as CSSProperties}
+    >
       <div className="project__head">
         <h3 className="project__name">
           <a href={project.url} target="_blank" rel="noreferrer">
@@ -69,6 +74,12 @@ function ProjectCard({ project }: { project: Project }) {
 export function Projects({ projects }: { projects: Project[] }) {
   const { t } = useI18n()
   const [filter, setFilter] = useState<string | null>(null)
+  // Depois do primeiro clique num filtro os cards animam a cada troca.
+  const [touched, setTouched] = useState(false)
+  const choose = (value: string | null) => {
+    setTouched(true)
+    setFilter(value)
+  }
 
   const languages = useMemo(() => {
     const counts = new Map<string, number>()
@@ -81,11 +92,15 @@ export function Projects({ projects }: { projects: Project[] }) {
   return (
     <section className="section" id="projects">
       <div className="container">
-        <h2 className="section__title">{t('projects.title')}</h2>
-        <p className="section__subtitle">{t('projects.subtitle')}</p>
+        <h2 className="section__title" data-reveal>
+          {t('projects.title')}
+        </h2>
+        <p className="section__subtitle" data-reveal style={{ '--d': 1 } as CSSProperties}>
+          {t('projects.subtitle')}
+        </p>
         {languages.length > 1 && (
-          <div className="chips" role="group" aria-label="Filtro">
-            <button type="button" className={filter === null ? 'is-active' : ''} aria-pressed={filter === null} onClick={() => setFilter(null)}>
+          <div className="chips" role="group" aria-label="Filtro" data-reveal style={{ '--d': 2 } as CSSProperties}>
+            <button type="button" className={filter === null ? 'is-active' : ''} aria-pressed={filter === null} onClick={() => choose(null)}>
               {t('projects.all')} <span className="muted">{projects.length}</span>
             </button>
             {languages.map(([lang, count]) => (
@@ -94,7 +109,7 @@ export function Projects({ projects }: { projects: Project[] }) {
                 key={lang}
                 className={filter === lang ? 'is-active' : ''}
                 aria-pressed={filter === lang}
-                onClick={() => setFilter(lang)}
+                onClick={() => choose(lang)}
               >
                 <span className="dot" style={{ background: languageColor(lang) }} />
                 {lang} <span className="muted">{count}</span>
@@ -103,9 +118,9 @@ export function Projects({ projects }: { projects: Project[] }) {
           </div>
         )}
         {visible.length ? (
-          <div className="grid">
-            {visible.map((project) => (
-              <ProjectCard key={project.fullName} project={project} />
+          <div className="grid" key={filter ?? 'all'}>
+            {visible.map((project, i) => (
+              <ProjectCard key={project.fullName} project={project} index={i} entering={touched} />
             ))}
           </div>
         ) : (

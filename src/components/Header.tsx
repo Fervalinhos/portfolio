@@ -12,6 +12,7 @@ export function Header({ name, hasContributions }: { name: string; hasContributi
   const { t, lang, setLang } = useI18n()
   const [theme, setTheme] = useState<Theme>(currentTheme)
   const [scrolled, setScrolled] = useState(false)
+  const [active, setActive] = useState('')
 
   useEffect(() => {
     document.documentElement.dataset.theme = theme
@@ -23,11 +24,37 @@ export function Header({ name, hasContributions }: { name: string; hasContributi
   }, [theme])
 
   useEffect(() => {
-    const onScroll = () => setScrolled(window.scrollY > 8)
+    const onScroll = () => {
+      setScrolled(window.scrollY > 8)
+      // No fim da página o contato nunca chega ao meio da tela.
+      if (window.innerHeight + window.scrollY >= document.documentElement.scrollHeight - 4) setActive('contact')
+    }
     onScroll()
     window.addEventListener('scroll', onScroll, { passive: true })
     return () => window.removeEventListener('scroll', onScroll)
   }, [])
+
+  // Destaca no menu a seção que está no meio da tela.
+  useEffect(() => {
+    if (!('IntersectionObserver' in window)) return
+    const observer = new IntersectionObserver(
+      (entries) => {
+        for (const entry of entries) if (entry.isIntersecting) setActive(entry.target.id)
+      },
+      { rootMargin: '-45% 0px -50% 0px' },
+    )
+    for (const id of ['top', 'about', 'projects', 'contributions', 'contact']) {
+      const el = document.getElementById(id)
+      if (el) observer.observe(el)
+    }
+    return () => observer.disconnect()
+  }, [])
+
+  const navLink = (id: string, label: string) => (
+    <a href={`#${id}`} className={active === id ? 'is-active' : ''} aria-current={active === id ? 'location' : undefined}>
+      {label}
+    </a>
+  )
 
   return (
     <header className={`header${scrolled ? ' header--scrolled' : ''}`}>
@@ -37,10 +64,10 @@ export function Header({ name, hasContributions }: { name: string; hasContributi
           {name}
         </a>
         <nav className="header__nav" aria-label="Principal">
-          <a href="#about">{t('nav.about')}</a>
-          <a href="#projects">{t('nav.projects')}</a>
-          {hasContributions && <a href="#contributions">{t('nav.contributions')}</a>}
-          <a href="#contact">{t('nav.contact')}</a>
+          {navLink('about', t('nav.about'))}
+          {navLink('projects', t('nav.projects'))}
+          {hasContributions && navLink('contributions', t('nav.contributions'))}
+          {navLink('contact', t('nav.contact'))}
         </nav>
         <div className="header__actions">
           <div className="lang-switch" role="group" aria-label="Idioma / Language">

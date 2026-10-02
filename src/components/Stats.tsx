@@ -1,5 +1,7 @@
+import type { CSSProperties } from 'react'
 import { useI18n, type MessageKey } from '../lib/i18n'
 import type { PortfolioData } from '../types'
+import { CountUp } from './CountUp'
 
 export function Stats({ stats }: { stats: PortfolioData['stats'] }) {
   const { t, formatNumber } = useI18n()
@@ -17,9 +19,9 @@ export function Stats({ stats }: { stats: PortfolioData['stats'] }) {
   return (
     <section className="stats" aria-label="GitHub">
       <div className="container stats__grid">
-        {visible.map(([key, value]) => (
-          <div className="stat" key={key}>
-            <span className="stat__value">{formatNumber(value ?? 0)}</span>
+        {visible.map(([key, value], i) => (
+          <div className="stat" key={key} data-reveal data-spotlight style={{ '--d': i } as CSSProperties}>
+            <CountUp value={value ?? 0} format={formatNumber} />
             <span className="stat__label">{t(key)}</span>
           </div>
         ))}

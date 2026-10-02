@@ -1,3 +1,4 @@
+import type { CSSProperties } from 'react'
 import { useI18n } from '../lib/i18n'
 import { languageColor } from '../lib/languageColors'
 import type { Contribution } from '../types'
@@ -11,11 +12,24 @@ export function Contributions({ items }: { items: Contribution[] }) {
   return (
     <section className="section section--alt" id="contributions">
       <div className="container">
-        <h2 className="section__title">{t('contrib.title')}</h2>
-        <p className="section__subtitle">{t('contrib.subtitle')}</p>
+        <h2 className="section__title" data-reveal>
+          {t('contrib.title')}
+        </h2>
+        <p className="section__subtitle" data-reveal style={{ '--d': 1 } as CSSProperties}>
+          {t('contrib.subtitle')}
+        </p>
         <div className="grid grid--wide">
-          {items.map((item) => (
-            <a className="card contrib" key={item.fullName} href={item.url} target="_blank" rel="noreferrer">
+          {items.map((item, i) => (
+            <a
+              className="card contrib"
+              key={item.fullName}
+              href={item.url}
+              target="_blank"
+              rel="noreferrer"
+              data-reveal
+              data-spotlight
+              style={{ '--d': i % 2 } as CSSProperties}
+            >
               <Avatar className="contrib__avatar" src={item.ownerAvatar} name={item.fullName.split('/')[0]} size={44} />
               <div className="contrib__body">
                 <h3 className="contrib__name">

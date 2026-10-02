@@ -1,4 +1,4 @@
-import { useEffect, useRef } from 'react'
+import { useEffect, useRef, type CSSProperties } from 'react'
 import { useI18n } from '../lib/i18n'
 import type { CalendarDay } from '../types'
 
@@ -58,10 +58,11 @@ export function Calendar({ total, days }: { total: number; days: CalendarDay[] }
           {Array.from({ length: offset }, (_, i) => (
             <span key={`pad-${i}`} className="calendar__cell calendar__cell--empty" />
           ))}
-          {days.map((day) => (
+          {days.map((day, i) => (
             <span
               key={day.date}
               className={`calendar__cell lvl-${level(day.count)}`}
+              style={{ '--w': Math.floor((offset + i) / 7) } as CSSProperties}
               title={`${formatDate(day.date + 'T12:00:00')}: ${day.count}`}
             />
           ))}

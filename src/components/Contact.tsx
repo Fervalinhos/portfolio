@@ -1,3 +1,4 @@
+import type { CSSProperties } from 'react'
 import { useI18n } from '../lib/i18n'
 import type { PortfolioData } from '../types'
 import { SocialLinks } from './SocialLinks'
@@ -8,8 +9,12 @@ export function Contact({ data }: { data: PortfolioData }) {
     <>
       <section className="section" id="contact">
         <div className="container contact">
-          <h2 className="section__title">{t('contact.title')}</h2>
-          <p className="section__subtitle">{t('contact.text')}</p>
+          <h2 className="section__title" data-reveal>
+            {t('contact.title')}
+          </h2>
+          <p className="section__subtitle" data-reveal style={{ '--d': 1 } as CSSProperties}>
+            {t('contact.text')}
+          </p>
           <SocialLinks githubUrl={data.profile.url} website={data.profile.blog} />
         </div>
       </section>

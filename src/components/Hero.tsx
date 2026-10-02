@@ -3,6 +3,7 @@ import { useI18n } from '../lib/i18n'
 import type { PortfolioData } from '../types'
 import { Avatar } from './Avatar'
 import { GitHubIcon, LinkedInIcon, PinIcon } from './Icons'
+import { Typewriter } from './Typewriter'
 
 export function Hero({ profile }: { profile: PortfolioData['profile'] }) {
   const { t, l } = useI18n()
@@ -14,7 +15,9 @@ export function Hero({ profile }: { profile: PortfolioData['profile'] }) {
         <div className="hero__text">
           <p className="hero__eyebrow">@{profile.login}</p>
           <h1 className="hero__name">{profile.name}</h1>
-          <p className="hero__headline">{l(config.headline)}</p>
+          <p className="hero__headline">
+            <Typewriter key={l(config.headline)} text={l(config.headline)} />
+          </p>
           {profile.bio && <p className="hero__bio">{profile.bio}</p>}
           {profile.location && (
             <p className="hero__meta">
@@ -36,6 +39,7 @@ export function Hero({ profile }: { profile: PortfolioData['profile'] }) {
           </div>
         </div>
         <div className="hero__avatar">
+          <span className="hero__ring" aria-hidden="true" />
           <Avatar src={profile.avatarUrl} name={profile.name} size={240} />
         </div>
       </div>
