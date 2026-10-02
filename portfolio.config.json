@@ -2,16 +2,16 @@
   "githubUser": "Fervalinhos",
   "name": "",
   "headline": {
-    "pt": "Desenvolvedor de Software",
-    "en": "Software Developer"
+    "pt": "Desenvolvedor Full Stack JavaScript",
+    "en": "Full Stack JavaScript Developer"
   },
   "about": {
-    "pt": "Desenvolvedor apaixonado por construir soluções úteis com código limpo. Aqui estão os projetos que criei e os repositórios open source com que contribuí.",
-    "en": "Developer who enjoys building useful things with clean code. Here are the projects I've built and the open source repositories I've contributed to."
+    "pt": "Desenvolvedor focado em JavaScript, React, Next.js e Node.js, com experiência em APIs com PostgreSQL e apps em React Native. Aqui estão os projetos que criei e os projetos em equipe em que contribuí.",
+    "en": "Developer focused on JavaScript, React, Next.js and Node.js, with experience building APIs with PostgreSQL and React Native apps. Here are the projects I've built and the team projects I've contributed to."
   },
   "links": {
-    "linkedin": "",
-    "email": "",
+    "linkedin": "https://www.linkedin.com/in/seu-perfil",
+    "email": "seu-email@exemplo.com",
     "website": "",
     "resume": ""
   },
