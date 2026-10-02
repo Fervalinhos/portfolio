@@ -9,7 +9,7 @@ export function SocialLinks({ githubUrl, website }: { githubUrl: string; website
   const siteHref = site && !/^https?:\/\//.test(site) ? `https://${site}` : site
 
   return (
-    <ul className="social">
+    <ul className="social p3-menu">
       <li>
         <a href={githubUrl} target="_blank" rel="noreferrer">
           <GitHubIcon /> GitHub

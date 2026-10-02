@@ -1,6 +1,10 @@
 import type { ComponentProps } from 'react'
+import { ScrollTrigger } from 'gsap/ScrollTrigger'
 import { reducedMotion } from '../lib/reducedMotion'
 import AnimatedContent from './reactbits/AnimatedContent/AnimatedContent'
+
+// Os títulos usam fonte da web: quando ela carrega o layout muda, então os gatilhos de rolagem são recalculados.
+if (typeof document !== 'undefined') void document.fonts?.ready.then(() => ScrollTrigger.refresh())
 
 type RevealProps = ComponentProps<typeof AnimatedContent>
 
