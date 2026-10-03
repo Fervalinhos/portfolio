@@ -2,7 +2,9 @@ import { useMemo, useState } from 'react'
 import { useI18n } from '../lib/i18n'
 import { languageColor } from '../lib/languageColors'
 import { reducedMotion } from '../lib/reducedMotion'
+import { useMediaQuery } from '../lib/useMediaQuery'
 import type { Project } from '../types'
+import { CardSpread } from './CardSpread'
 import { Carousel } from './Carousel'
 import { ExternalIcon, ForkIcon, GitHubIcon, StarIcon } from './Icons'
 import { LanguageBar } from './LanguageBar'
@@ -70,13 +72,15 @@ function ProjectCard({ project }: { project: Project }) {
   )
 }
 
-// Quantos projetos (os mais relevantes) aparecem no carrossel antes de abrir a lista completa.
-const CAROUSEL_SIZE = 6
+// Quantos projetos (os mais relevantes) aparecem em destaque antes de abrir a lista completa.
+const FEATURED_SIZE = 6
 
 export function Projects({ projects }: { projects: Project[] }) {
   const { t } = useI18n()
   const [filter, setFilter] = useState<string | null>(null)
   const [showAll, setShowAll] = useState(false)
+  // Telas largas: leque de cards; no celular e tablet estreito, carrossel com rolagem.
+  const wide = useMediaQuery('(min-width: 1000px)')
 
   const languages = useMemo(() => {
     const counts = new Map<string, number>()
@@ -85,6 +89,7 @@ export function Projects({ projects }: { projects: Project[] }) {
   }, [projects])
 
   const visible = filter ? projects.filter((p) => p.language === filter) : projects
+  const featured = projects.slice(0, FEATURED_SIZE)
   // Com poucos projetos o carrossel não ajuda: a lista aparece direto.
   const hasCarousel = projects.length > 3
   const listOpen = showAll || !hasCarousel
@@ -103,11 +108,22 @@ export function Projects({ projects }: { projects: Project[] }) {
         </Reveal>
         {!listOpen && (
           <Reveal direction="horizontal" distance={60} duration={1.1} delay={0.1}>
-            <Carousel>
-              {projects.slice(0, CAROUSEL_SIZE).map((project) => (
-                <ProjectCard project={project} key={project.fullName} />
-              ))}
-            </Carousel>
+            {wide ? (
+              <>
+                <CardSpread>
+                  {featured.map((project) => (
+                    <ProjectCard project={project} key={project.fullName} />
+                  ))}
+                </CardSpread>
+                <p className="spread__hint">{t('projects.spreadHint')}</p>
+              </>
+            ) : (
+              <Carousel>
+                {featured.map((project) => (
+                  <ProjectCard project={project} key={project.fullName} />
+                ))}
+              </Carousel>
+            )}
           </Reveal>
         )}
         {listOpen && languages.length > 1 && (

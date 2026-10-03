@@ -3,19 +3,30 @@ import { reducedMotion } from '../lib/reducedMotion'
 import { useTheme } from '../lib/theme'
 import type { PortfolioData } from '../types'
 import CountUp from './reactbits/CountUp/CountUp'
-import Grainient from './reactbits/Grainient/Grainient'
+import Dither from './reactbits/Dither/Dither'
 import { Reveal } from './Reveal'
 
-// Tons da cor de destaque do site: claro, médio e escuro (o texto branco fica legível em cima).
-const SWIRL_COLORS = {
-  light: ['#818cf8', '#4f46e5', '#312e81'],
-  dark: ['#6366f1', '#4338ca', '#1e1b4b'],
+type RGB = [number, number, number]
+const rgb = (hex: string): RGB => [1, 3, 5].map((i) => parseInt(hex.slice(i, i + 2), 16) / 255) as RGB
+
+// Ondas pontilhadas (dithering retrô) nos tons índigo do site: fundo escuro e onda clara.
+const DITHER_COLORS: Record<'light' | 'dark', { wave: RGB; background: RGB }> = {
+  light: { wave: rgb('#a5b4fc'), background: rgb('#312e81') },
+  dark: { wave: rgb('#818cf8'), background: rgb('#1e1b4b') },
 }
+
+// Cada card mostra outra região das ondas, para não repetirem o mesmo desenho lado a lado.
+const OFFSETS: [number, number][] = [
+  [0, 0],
+  [2.1, 0.6],
+  [4.3, -0.4],
+  [6.2, 0.9],
+]
 
 export function Stats({ stats }: { stats: PortfolioData['stats'] }) {
   const { t, lang, formatNumber } = useI18n()
   const { theme } = useTheme()
-  const [light, mid, dark] = SWIRL_COLORS[theme]
+  const colors = DITHER_COLORS[theme]
   const items: [MessageKey, number | null][] = [
     ['stats.repos', stats.publicRepos],
     ['stats.contributions', stats.contributionsLastYear],
@@ -33,19 +44,19 @@ export function Stats({ stats }: { stats: PortfolioData['stats'] }) {
         {visible.map(([key, value], i) => (
           <Reveal className="stat-reveal" key={key} delay={0.1 * i}>
             <div className="stat">
-              {/* Redemoinho de cores (React Bits Grainient) dentro do card; cada card mostra outra parte dele */}
+              {/* Ondas com dithering (React Bits Dither) dentro do card; o mouse abre um "buraco" nelas */}
               {!reducedMotion && (
-                <div className="stat__swirl" aria-hidden="true">
-                  <Grainient
-                    color1={light}
-                    color2={mid}
-                    color3={dark}
-                    timeSpeed={0.2}
-                    centerX={(i - 1.5) * 0.18}
-                    centerY={i % 2 ? 0.08 : -0.08}
-                    zoom={0.8}
-                    contrast={1.25}
-                    grainAmount={0.06}
+                <div className="stat__waves" aria-hidden="true">
+                  <Dither
+                    waveColor={colors.wave}
+                    backgroundColor={colors.background}
+                    waveSpeed={0.06}
+                    waveFrequency={3}
+                    waveAmplitude={0.32}
+                    colorNum={5}
+                    pixelSize={3}
+                    mouseRadius={0.45}
+                    offset={OFFSETS[i % OFFSETS.length]}
                   />
                 </div>
               )}

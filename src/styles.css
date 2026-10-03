@@ -417,7 +417,7 @@ svg {
   gap: 16px;
 }
 
-/* Cards com o redemoinho de cores (Grainient) por dentro e texto branco por cima.
+/* Cards com ondas pontilhadas (Dither) por dentro e texto branco por cima.
    A entrada (Reveal) anima o wrapper, então o hover pode mover o card. */
 .stat-reveal > .stat {
   height: 100%;
@@ -446,19 +446,19 @@ svg {
   box-shadow: 0 14px 34px color-mix(in srgb, var(--accent) 35%, transparent);
 }
 
-.stat__swirl {
+.stat__waves {
   position: absolute;
   inset: 0;
   z-index: -1;
 }
 
-/* leve escurecida atrás do texto para manter a leitura em qualquer ponto do redemoinho */
+/* leve escurecida atrás do texto para manter a leitura em qualquer ponto das ondas */
 .stat::after {
   content: '';
   position: absolute;
   inset: 0;
   z-index: -1;
-  background: linear-gradient(100deg, rgb(15 23 42 / 0.45), transparent 80%);
+  background: linear-gradient(100deg, rgb(15 23 42 / 0.65), rgb(15 23 42 / 0.2) 75%);
   pointer-events: none;
 }
 
@@ -468,9 +468,15 @@ svg {
   letter-spacing: -0.02em;
 }
 
+.stat__value,
+.stat__label {
+  text-shadow: 0 1px 3px rgb(15 23 42 / 0.6);
+}
+
 .stat__label {
   font-size: 14px;
-  color: rgb(255 255 255 / 0.85);
+  font-weight: 500;
+  color: rgb(255 255 255 / 0.9);
 }
 
 /* ---------- Seções ---------- */
@@ -767,6 +773,45 @@ svg {
   display: flex;
   justify-content: center;
   margin-top: 28px;
+}
+
+/* Leque de projetos (CardSpread): cards empilhados que se abrem em arco */
+.spread {
+  --card-height: 380px;
+  position: relative;
+  height: calc(var(--card-height) + 110px);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.spread__card {
+  position: absolute;
+  top: 36px;
+  left: 50%;
+  width: var(--card-width);
+  height: var(--card-height);
+  margin-left: calc(var(--card-width) / -2);
+  filter: drop-shadow(0 10px 22px rgb(15 23 42 / 0.16));
+}
+
+.spread .project__desc {
+  display: -webkit-box;
+  overflow: hidden;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 4;
+}
+
+.spread__hint {
+  margin: 8px 0 0;
+  color: var(--text-muted);
+  font-size: 13px;
+  text-align: center;
+  transition: opacity 0.4s;
+}
+
+.spread.is-open + .spread__hint {
+  opacity: 0;
 }
 
 /* Cards no estilo dos menus de Persona 3 (P3Card): painel com cantos cortados,
