@@ -788,45 +788,6 @@ svg {
   margin-top: 28px;
 }
 
-/* Leque de projetos (CardSpread): cards empilhados que se abrem em arco */
-.spread {
-  --card-height: 380px;
-  position: relative;
-  height: calc(var(--card-height) + 110px);
-  margin: 0;
-  padding: 0;
-  list-style: none;
-}
-
-.spread__card {
-  position: absolute;
-  top: 36px;
-  left: 50%;
-  width: var(--card-width);
-  height: var(--card-height);
-  margin-left: calc(var(--card-width) / -2);
-  filter: drop-shadow(0 10px 22px rgb(15 23 42 / 0.16));
-}
-
-.spread .project__desc {
-  display: -webkit-box;
-  overflow: hidden;
-  -webkit-box-orient: vertical;
-  -webkit-line-clamp: 4;
-}
-
-.spread__hint {
-  margin: 8px 0 0;
-  color: var(--text-muted);
-  font-size: 13px;
-  text-align: center;
-  transition: opacity 0.4s;
-}
-
-.spread.is-open + .spread__hint {
-  opacity: 0;
-}
-
 /* Cards no estilo dos menus de Persona 3 (P3Card): painel com cantos cortados,
    sombra na cor de destaque que se desloca e faixa inclinada atrás do título ao selecionar */
 .p3card {
