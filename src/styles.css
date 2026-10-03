@@ -41,7 +41,7 @@
   --accent-strong: #4a63f0;
   --accent-soft: rgb(55 81 228 / 0.18);
   --accent-contrast: #ffffff;
-  --accent-text: #6b8cff;
+  --accent-text: #809cff;
   --shadow: 0 1px 2px rgb(0 0 0 / 0.3);
   --shadow-hover: 0 12px 32px rgb(0 0 0 / 0.45);
   --cal-0: #2e2e2e;
@@ -741,24 +741,32 @@ svg {
 
 .carousel__dots {
   display: flex;
-  gap: 8px;
 }
 
-/* Indicadores inclinados, como as faixas dos cards */
+/* Área de toque de 24px; a faixa inclinada (como as dos cards) é desenhada no ::before */
 .carousel__dots button {
+  display: grid;
+  place-items: center;
+  min-width: 24px;
+  height: 24px;
+  padding: 0 5px;
+  border: 0;
+  background: none;
+  cursor: pointer;
+}
+
+.carousel__dots button::before {
+  content: '';
   width: 14px;
   height: 8px;
-  padding: 0;
-  border: 0;
   background: var(--border);
   transform: skewX(-14deg);
-  cursor: pointer;
   transition:
     width 0.5s cubic-bezier(0.22, 1, 0.36, 1),
     background 0.3s;
 }
 
-.carousel__dots button.is-active {
+.carousel__dots button.is-active::before {
   width: 36px;
   background: var(--accent);
 }
