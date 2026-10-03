@@ -7,13 +7,17 @@ import { Avatar } from './Avatar'
 import { GitHubIcon, LinkedInIcon, PinIcon } from './Icons'
 import BlurText from './reactbits/BlurText/BlurText'
 import DotGrid from './reactbits/DotGrid/DotGrid'
+import ElectricBorder from './reactbits/ElectricBorder/ElectricBorder'
 import Magnet from './reactbits/Magnet/Magnet'
 import RotatingText from './reactbits/RotatingText/RotatingText'
 import { Reveal } from './Reveal'
 
+// Mesma cor de destaque do site (--accent) nos dois temas.
+const ACCENT = '#3751e4'
+
 const DOT_COLORS = {
-  light: { base: '#dde1ea', active: '#4f46e5' },
-  dark: { base: '#1e2635', active: '#818cf8' },
+  light: { base: '#dde1ea', active: ACCENT },
+  dark: { base: '#363636', active: ACCENT },
 }
 
 export function Hero({ profile }: { profile: PortfolioData['profile'] }) {
@@ -106,7 +110,13 @@ export function Hero({ profile }: { profile: PortfolioData['profile'] }) {
           </Reveal>
         </div>
         <Reveal distance={0} scale={0.9} duration={1} delay={0.2} className="hero__avatar">
-          <Avatar src={profile.avatarUrl} name={profile.name} size={240} />
+          {reducedMotion ? (
+            <Avatar src={profile.avatarUrl} name={profile.name} size={240} />
+          ) : (
+            <ElectricBorder color={ACCENT} speed={0.6} chaos={0.05} borderRadius={999}>
+              <Avatar src={profile.avatarUrl} name={profile.name} size={240} />
+            </ElectricBorder>
+          )}
         </Reveal>
       </div>
     </section>

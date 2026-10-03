@@ -5,50 +5,53 @@
   --border: #e4e7ec;
   --text: #0f172a;
   --text-muted: #5b6474;
-  --accent: #4f46e5;
-  --accent-strong: #4338ca;
-  --accent-soft: #eef2ff;
+  --accent: #3751e4;
+  --accent-strong: #2840c6;
+  --accent-soft: #eef0fd;
   --accent-contrast: #ffffff;
+  /* texto na cor de destaque (no escuro, um azul mais claro para dar leitura) */
+  --accent-text: var(--accent);
   --shadow: 0 1px 2px rgb(15 23 42 / 0.04), 0 4px 16px rgb(15 23 42 / 0.06);
   --shadow-hover: 0 2px 4px rgb(15 23 42 / 0.06), 0 12px 32px rgb(15 23 42 / 0.1);
   --cal-0: #ebedf0;
-  --cal-1: #c7d2fe;
-  --cal-2: #a5b4fc;
-  --cal-3: #6366f1;
-  --cal-4: #4338ca;
+  --cal-1: #d2d8f9;
+  --cal-2: #a5b1f3;
+  --cal-3: #3751e4;
+  --cal-4: #2840c6;
   --radius: 14px;
   --font: 'Inter', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
   --mono: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, monospace;
   --display: 'Barlow Condensed', 'Arial Narrow', Impact, sans-serif;
-  /* Paleta dos menus de Persona 3 Reload (a mesma da boss battle do perfil) */
-  --p3-cyan: #2fd4ff;
-  --p3-slab: #06205e;
+  /* Cards no estilo dos menus de Persona 3, com as cores do site */
+  --p3-glow: var(--accent);
+  --p3-slab: var(--accent-strong);
   --p3-slab-text: #ffffff;
-  --p3-echo: rgb(47 212 255 / 0.55);
+  --p3-echo: rgb(107 140 255 / 0.8);
   color-scheme: light;
 }
 
 :root[data-theme='dark'] {
-  --bg: #0b0f17;
-  --bg-alt: #0f1520;
-  --surface: #121926;
-  --border: #222b3a;
-  --text: #e6e9ef;
-  --text-muted: #96a0b2;
-  --accent: #818cf8;
-  --accent-strong: #a5b4fc;
-  --accent-soft: rgb(129 140 248 / 0.12);
-  --accent-contrast: #0b0f17;
+  --bg: #1f1f1f;
+  --bg-alt: #242424;
+  --surface: #292929;
+  --border: #383838;
+  --text: #ededed;
+  --text-muted: #a8a8a8;
+  --accent: #3751e4;
+  --accent-strong: #4a63f0;
+  --accent-soft: rgb(55 81 228 / 0.18);
+  --accent-contrast: #ffffff;
+  --accent-text: #809cff;
   --shadow: 0 1px 2px rgb(0 0 0 / 0.3);
   --shadow-hover: 0 12px 32px rgb(0 0 0 / 0.45);
-  --cal-0: #1a2231;
-  --cal-1: #2e3a78;
-  --cal-2: #4549b0;
-  --cal-3: #6c6fe6;
-  --cal-4: #a5b4fc;
-  --p3-slab: #ffffff;
-  --p3-slab-text: #06205e;
-  --p3-echo: rgb(47 212 255 / 0.6);
+  --cal-0: #2e2e2e;
+  --cal-1: #313965;
+  --cal-2: #33439b;
+  --cal-3: #3751e4;
+  --cal-4: #6b8cff;
+  --p3-slab: #3751e4;
+  --p3-slab-text: #ffffff;
+  --p3-echo: rgb(107 140 255 / 0.7);
   color-scheme: dark;
 }
 
@@ -271,7 +274,7 @@ svg {
 
 .lang-switch button.is-active {
   background: var(--accent-soft);
-  color: var(--accent);
+  color: var(--accent-text);
 }
 
 /* ---------- Hero ---------- */
@@ -306,7 +309,7 @@ svg {
   margin: 0 0 12px;
   font-family: var(--mono);
   font-size: 14px;
-  color: var(--accent);
+  color: var(--accent-text);
 }
 
 .hero__name {
@@ -339,7 +342,7 @@ svg {
   padding: 2px 12px;
   border-radius: 8px;
   background: var(--accent-soft);
-  color: var(--accent);
+  color: var(--accent-text);
   font-weight: 700;
   overflow: hidden;
 }
@@ -396,7 +399,7 @@ svg {
   flex-shrink: 0;
   border-radius: 50%;
   background: var(--accent-soft);
-  color: var(--accent);
+  color: var(--accent-text);
   font-weight: 800;
   letter-spacing: -0.02em;
 }
@@ -417,13 +420,51 @@ svg {
   gap: 16px;
 }
 
+/* Cards com ondas pontilhadas (Dither) por dentro e texto branco por cima.
+   A entrada (Reveal) anima o wrapper, então o hover pode mover o card. */
+.stat-reveal > .stat {
+  height: 100%;
+}
+
 .stat {
+  position: relative;
+  isolation: isolate;
   display: flex;
   flex-direction: column;
   padding: 20px 24px;
-  border: 1px solid var(--border);
+  overflow: hidden;
+  border: 1px solid color-mix(in srgb, var(--accent) 35%, transparent);
   border-radius: var(--radius);
-  background: var(--surface);
+  /* também é o visual de quem prefere menos movimento */
+  background: linear-gradient(135deg, #3751e4, #1f33b0);
+  color: #fff;
+  box-shadow: var(--shadow);
+  transition:
+    transform 0.5s cubic-bezier(0.22, 1, 0.36, 1),
+    box-shadow 0.5s;
+}
+
+.stat:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 14px 34px color-mix(in srgb, var(--accent) 35%, transparent);
+}
+
+.stat__waves {
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  /* recorta o canvas WebGL nos cantos arredondados (só overflow nem sempre recorta camadas da GPU) */
+  clip-path: inset(0 round calc(var(--radius) - 1px));
+}
+
+/* leve escurecida atrás do texto para manter a leitura em qualquer ponto das ondas */
+.stat::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  background: linear-gradient(100deg, rgb(12 22 90 / 0.45), rgb(12 22 90 / 0) 75%);
+  pointer-events: none;
 }
 
 .stat__value {
@@ -432,9 +473,15 @@ svg {
   letter-spacing: -0.02em;
 }
 
+.stat__value,
+.stat__label {
+  text-shadow: 0 1px 3px rgb(12 22 90 / 0.6);
+}
+
 .stat__label {
   font-size: 14px;
-  color: var(--text-muted);
+  font-weight: 500;
+  color: rgb(255 255 255 / 0.9);
 }
 
 /* ---------- Seções ---------- */
@@ -488,6 +535,35 @@ svg {
 
 .about__calendar {
   grid-column: 1 / -1;
+}
+
+/* Stack por área (portfolio.config.json → stack) */
+.stack {
+  display: grid;
+  gap: 12px;
+  margin: 24px 0 0;
+}
+
+.stack__group {
+  display: grid;
+  grid-template-columns: 128px minmax(0, 1fr);
+  align-items: baseline;
+  gap: 12px;
+}
+
+.stack__group dt {
+  color: var(--text-muted);
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.stack__group dd {
+  margin: 0;
+}
+
+.stack .tags li {
+  padding: 3px 12px;
+  font-size: 13px;
 }
 
 /* ---------- Barra de linguagens ---------- */
@@ -607,7 +683,7 @@ svg {
 .chips button.is-active {
   border-color: var(--accent);
   background: var(--accent-soft);
-  color: var(--accent);
+  color: var(--accent-text);
 }
 
 .grid {
@@ -620,8 +696,139 @@ svg {
   grid-template-columns: repeat(auto-fill, minmax(420px, 1fr));
 }
 
+/* Carrossel de projetos */
+.carousel__track {
+  display: flex;
+  gap: 20px;
+  /* espaço para a sombra deslocada dos cards, que a rolagem cortaria */
+  margin: -6px -14px -14px -6px;
+  padding: 6px 14px 14px 6px;
+  overflow-x: auto;
+  overscroll-behavior-x: contain;
+  scroll-snap-type: x mandatory;
+  scroll-padding-inline: 6px;
+  scrollbar-width: none;
+  outline: none;
+}
+
+.carousel__track::-webkit-scrollbar {
+  display: none;
+}
+
+.carousel__track:focus-visible {
+  box-shadow: inset 0 0 0 2px var(--accent);
+  border-radius: 8px;
+}
+
+.carousel__slide {
+  --per-view: 3;
+  flex: 0 0 calc((100% - (var(--per-view) - 1) * 20px) / var(--per-view));
+  min-width: 0;
+  scroll-snap-align: start;
+}
+
+.carousel__slide > * {
+  height: 100%;
+}
+
+.carousel__controls {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  margin-top: 20px;
+}
+
+.carousel__dots {
+  display: flex;
+}
+
+/* Área de toque de 24px; a faixa inclinada (como as dos cards) é desenhada no ::before */
+.carousel__dots button {
+  display: grid;
+  place-items: center;
+  min-width: 24px;
+  height: 24px;
+  padding: 0 5px;
+  border: 0;
+  background: none;
+  cursor: pointer;
+}
+
+.carousel__dots button::before {
+  content: '';
+  width: 14px;
+  height: 8px;
+  background: var(--border);
+  transform: skewX(-14deg);
+  transition:
+    width 0.5s cubic-bezier(0.22, 1, 0.36, 1),
+    background 0.3s;
+}
+
+.carousel__dots button.is-active::before {
+  width: 36px;
+  background: var(--accent);
+}
+
+.carousel__arrows {
+  display: flex;
+  gap: 8px;
+}
+
+.icon-button:disabled {
+  opacity: 0.4;
+  cursor: default;
+  border-color: var(--border);
+}
+
+.projects__more {
+  display: flex;
+  justify-content: center;
+  margin-top: 28px;
+}
+
+/* Leque de projetos (CardSpread): cards empilhados que se abrem em arco */
+.spread {
+  --card-height: 380px;
+  position: relative;
+  height: calc(var(--card-height) + 110px);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.spread__card {
+  position: absolute;
+  top: 36px;
+  left: 50%;
+  width: var(--card-width);
+  height: var(--card-height);
+  margin-left: calc(var(--card-width) / -2);
+  filter: drop-shadow(0 10px 22px rgb(15 23 42 / 0.16));
+}
+
+.spread .project__desc {
+  display: -webkit-box;
+  overflow: hidden;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 4;
+}
+
+.spread__hint {
+  margin: 8px 0 0;
+  color: var(--text-muted);
+  font-size: 13px;
+  text-align: center;
+  transition: opacity 0.4s;
+}
+
+.spread.is-open + .spread__hint {
+  opacity: 0;
+}
+
 /* Cards no estilo dos menus de Persona 3 (P3Card): painel com cantos cortados,
-   sombra ciano que se desloca e faixa inclinada atrás do título ao selecionar */
+   sombra na cor de destaque que se desloca e faixa inclinada atrás do título ao selecionar */
 .p3card {
   --cut: 18px;
   --shape: polygon(var(--cut) 0, 100% 0, 100% calc(100% - var(--cut)), calc(100% - var(--cut)) 100%, 0 100%, 0 var(--cut));
@@ -633,7 +840,7 @@ svg {
   position: absolute;
   inset: 0;
   clip-path: var(--shape);
-  background: var(--p3-cyan);
+  background: var(--p3-glow);
   opacity: 0;
 }
 
@@ -647,7 +854,7 @@ svg {
 }
 
 .p3card.is-active .p3card__panel {
-  background: var(--p3-cyan);
+  background: var(--p3-glow);
 }
 
 .p3card__inner {
@@ -689,7 +896,7 @@ svg {
 }
 
 .p3-title__slab--echo {
-  background: var(--p3-cyan);
+  background: var(--p3-glow);
   translate: 6px 5px;
 }
 
@@ -765,7 +972,7 @@ svg {
   padding: 2px 10px;
   border-radius: 999px;
   background: var(--accent-soft);
-  color: var(--accent);
+  color: var(--accent-text);
   font-size: 12px;
   font-weight: 600;
 }
@@ -815,7 +1022,7 @@ svg {
   padding: 2px 8px;
   border-radius: 999px;
   background: var(--accent-soft);
-  color: var(--accent);
+  color: var(--accent-text);
 }
 
 /* ---------- Contato e rodapé ---------- */
@@ -973,6 +1180,12 @@ svg {
 }
 
 /* ---------- Responsivo ---------- */
+@media (max-width: 1080px) {
+  .carousel__slide {
+    --per-view: 2;
+  }
+}
+
 @media (max-width: 860px) {
   .header__nav {
     display: none;
@@ -1007,6 +1220,15 @@ svg {
   .grid,
   .grid--wide {
     grid-template-columns: minmax(0, 1fr);
+  }
+
+  .stack__group {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 6px;
+  }
+
+  .carousel__slide {
+    --per-view: 1.15;
   }
 
   .section {

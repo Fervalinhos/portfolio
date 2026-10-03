@@ -110,3 +110,15 @@ export const MoonIcon = (props: IconProps) => (
     <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79Z" />
   </Stroke>
 )
+
+export const ChevronLeftIcon = (props: IconProps) => (
+  <Stroke {...props}>
+    <path d="m15 18-6-6 6-6" />
+  </Stroke>
+)
+
+export const ChevronRightIcon = (props: IconProps) => (
+  <Stroke {...props}>
+    <path d="m9 18 6-6-6-6" />
+  </Stroke>
+)

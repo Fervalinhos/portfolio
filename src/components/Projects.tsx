@@ -1,7 +1,11 @@
 import { useMemo, useState } from 'react'
 import { useI18n } from '../lib/i18n'
 import { languageColor } from '../lib/languageColors'
+import { reducedMotion } from '../lib/reducedMotion'
+import { useMediaQuery } from '../lib/useMediaQuery'
 import type { Project } from '../types'
+import { CardSpread } from './CardSpread'
+import { Carousel } from './Carousel'
 import { ExternalIcon, ForkIcon, GitHubIcon, StarIcon } from './Icons'
 import { LanguageBar } from './LanguageBar'
 import { P3Card, P3Title } from './P3Card'
@@ -68,9 +72,15 @@ function ProjectCard({ project }: { project: Project }) {
   )
 }
 
+// Quantos projetos (os mais relevantes) aparecem em destaque antes de abrir a lista completa.
+const FEATURED_SIZE = 6
+
 export function Projects({ projects }: { projects: Project[] }) {
   const { t } = useI18n()
   const [filter, setFilter] = useState<string | null>(null)
+  const [showAll, setShowAll] = useState(false)
+  // Telas largas: leque de cards; no celular e tablet estreito, carrossel com rolagem.
+  const wide = useMediaQuery('(min-width: 1000px)')
 
   const languages = useMemo(() => {
     const counts = new Map<string, number>()
@@ -79,6 +89,15 @@ export function Projects({ projects }: { projects: Project[] }) {
   }, [projects])
 
   const visible = filter ? projects.filter((p) => p.language === filter) : projects
+  const featured = projects.slice(0, FEATURED_SIZE)
+  // Com poucos projetos o carrossel não ajuda: a lista aparece direto.
+  const hasCarousel = projects.length > 3
+  const listOpen = showAll || !hasCarousel
+
+  const toggle = () => {
+    setShowAll(!showAll)
+    if (showAll) document.getElementById('projects')?.scrollIntoView({ behavior: reducedMotion ? 'auto' : 'smooth' })
+  }
 
   return (
     <section className="section" id="projects">
@@ -87,7 +106,27 @@ export function Projects({ projects }: { projects: Project[] }) {
           <h2 className="section__title">{t('projects.title')}</h2>
           <p className="section__subtitle">{t('projects.subtitle')}</p>
         </Reveal>
-        {languages.length > 1 && (
+        {!listOpen && (
+          <Reveal direction="horizontal" distance={60} duration={1.1} delay={0.1}>
+            {wide ? (
+              <>
+                <CardSpread>
+                  {featured.map((project) => (
+                    <ProjectCard project={project} key={project.fullName} />
+                  ))}
+                </CardSpread>
+                <p className="spread__hint">{t('projects.spreadHint')}</p>
+              </>
+            ) : (
+              <Carousel>
+                {featured.map((project) => (
+                  <ProjectCard project={project} key={project.fullName} />
+                ))}
+              </Carousel>
+            )}
+          </Reveal>
+        )}
+        {listOpen && languages.length > 1 && (
           <Reveal className="chips" role="group" aria-label="Filtro" delay={0.1}>
             <button type="button" className={filter === null ? 'is-active' : ''} aria-pressed={filter === null} onClick={() => setFilter(null)}>
               {t('projects.all')} <span className="muted">{projects.length}</span>
@@ -106,16 +145,24 @@ export function Projects({ projects }: { projects: Project[] }) {
             ))}
           </Reveal>
         )}
-        {visible.length ? (
-          <div className="grid" key={filter ?? 'all'}>
-            {visible.map((project, i) => (
-              <Reveal key={project.fullName} direction="horizontal" distance={60} duration={1.1} delay={(i % 3) * 0.15}>
-                <ProjectCard project={project} />
-              </Reveal>
-            ))}
+        {listOpen &&
+          (visible.length ? (
+            <div className="grid" key={filter ?? 'all'}>
+              {visible.map((project, i) => (
+                <Reveal key={project.fullName} direction="horizontal" distance={60} duration={1.1} delay={(i % 3) * 0.15}>
+                  <ProjectCard project={project} />
+                </Reveal>
+              ))}
+            </div>
+          ) : (
+            <p className="muted">{t('projects.empty')}</p>
+          ))}
+        {hasCarousel && (
+          <div className="projects__more">
+            <button type="button" className="button" aria-expanded={showAll} onClick={toggle}>
+              {showAll ? t('projects.showLess') : t('projects.showAll', { n: projects.length })}
+            </button>
           </div>
-        ) : (
-          <p className="muted">{t('projects.empty')}</p>
         )}
       </div>
     </section>
