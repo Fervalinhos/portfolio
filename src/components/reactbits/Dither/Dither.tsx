@@ -149,8 +149,10 @@ interface DitherProps {
   mouseRadius?: number;
   /** desloca o campo de ondas (para vários canvases mostrarem partes diferentes) */
   offset?: [number, number];
-  /** ondas lisas em resolução cheia, sem pixelização nem dithering */
+  /** ondas lisas, sem pixelização nem dithering */
   smooth?: boolean;
+  /** pixels desenhados por pixel CSS no modo liso (menos = mais leve; o degradê suave não perde nitidez) */
+  renderScale?: number;
   className?: string;
 }
 
@@ -171,6 +173,7 @@ export default function Dither({
   mouseRadius = 1,
   offset = DEFAULT_OFFSET,
   smooth = false,
+  renderScale = 1,
   className = ''
 }: DitherProps) {
   const containerRef = useRef<HTMLDivElement>(null);
@@ -181,8 +184,8 @@ export default function Dither({
   useEffect(() => {
     const container = containerRef.current;
     if (!container) return;
-    // o modo pixelado usa 1 pixel por pixel CSS, como o original; o liso acompanha a tela
-    const dpr = smooth ? Math.min(window.devicePixelRatio || 1, 2) : 1;
+    // o modo pixelado usa 1 pixel por pixel CSS, como o original; o liso usa renderScale
+    const dpr = smooth ? renderScale : 1;
     const renderer = new Renderer({ webgl: 2, dpr, alpha: false, antialias: false });
     const gl = renderer.gl;
     const canvas = gl.canvas as HTMLCanvasElement;
@@ -286,7 +289,7 @@ export default function Dither({
       gl.getExtension('WEBGL_lose_context')?.loseContext();
       canvas.remove();
     };
-  }, [smooth]);
+  }, [smooth, renderScale]);
 
   // Props atualizam os uniforms sem recriar o contexto
   useEffect(() => {

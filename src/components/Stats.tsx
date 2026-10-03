@@ -11,6 +11,8 @@ const rgb = (hex: string): RGB => [1, 3, 5].map((i) => parseInt(hex.slice(i, i +
 // Ondas no azul do site (#3751e4), iguais nos dois temas: um tom mais fundo e um mais claro.
 const WAVE_COLOR = rgb('#6b8cff')
 const WAVE_BACKGROUND = rgb('#1f33b0')
+// As ondas são um degradê suave: desenhar em meia resolução e esticar não muda o visual e custa 4x menos.
+const RENDER_SCALE = 0.5
 
 // Cada card mostra outra região das ondas, para não repetirem o mesmo desenho lado a lado.
 const OFFSETS: [number, number][] = [
@@ -49,6 +51,7 @@ export function Stats({ stats }: { stats: PortfolioData['stats'] }) {
                     waveFrequency={1.6}
                     waveAmplitude={0.3}
                     smooth
+                    renderScale={RENDER_SCALE}
                     mouseRadius={0.45}
                     offset={OFFSETS[i % OFFSETS.length]}
                   />

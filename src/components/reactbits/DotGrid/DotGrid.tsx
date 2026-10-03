@@ -69,6 +69,8 @@ const DotGrid: React.FC<DotGridProps> = ({
   const wrapperRef = useRef<HTMLDivElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const dotsRef = useRef<Dot[]>([]);
+  // Desenha só quando algo muda (mouse, clique, pontos voltando ao lugar), não a cada quadro
+  const requestDrawRef = useRef<() => void>(() => {});
   const pointerRef = useRef({
     x: 0,
     y: 0,
@@ -128,15 +130,19 @@ const DotGrid: React.FC<DotGridProps> = ({
       }
     }
     dotsRef.current = dots;
+    requestDrawRef.current();
   }, [dotSize, gap]);
 
   useEffect(() => {
     if (!circlePath) return;
 
-    let rafId: number;
+    let rafId = 0;
+    let visible = true;
     const proxSq = proximity * proximity;
+    const radius = dotSize / 2;
 
     const draw = () => {
+      rafId = 0;
       const canvas = canvasRef.current;
       if (!canvas) return;
       const ctx = canvas.getContext('2d');
@@ -144,6 +150,9 @@ const DotGrid: React.FC<DotGridProps> = ({
       ctx.clearRect(0, 0, canvas.width, canvas.height);
 
       const { x: px, y: py } = pointerRef.current;
+      // os pontos na cor base vão todos num único caminho (um fill só); os perto do mouse, um a um
+      const basePath = new Path2D();
+      let moving = false;
 
       for (const dot of dotsRef.current) {
         const ox = dot.cx + dot.xOffset;
@@ -151,30 +160,52 @@ const DotGrid: React.FC<DotGridProps> = ({
         const dx = dot.cx - px;
         const dy = dot.cy - py;
         const dsq = dx * dx + dy * dy;
+        if (dot.xOffset !== 0 || dot.yOffset !== 0 || dot._inertiaApplied) moving = true;
 
-        let style = baseColor;
-        if (dsq <= proxSq) {
-          const dist = Math.sqrt(dsq);
-          const t = 1 - dist / proximity;
-          const r = Math.round(baseRgb.r + (activeRgb.r - baseRgb.r) * t);
-          const g = Math.round(baseRgb.g + (activeRgb.g - baseRgb.g) * t);
-          const b = Math.round(baseRgb.b + (activeRgb.b - baseRgb.b) * t);
-          style = `rgb(${r},${g},${b})`;
+        if (dsq > proxSq) {
+          basePath.moveTo(ox + radius, oy);
+          basePath.arc(ox, oy, radius, 0, Math.PI * 2);
+          continue;
         }
+        const dist = Math.sqrt(dsq);
+        const t = 1 - dist / proximity;
+        const r = Math.round(baseRgb.r + (activeRgb.r - baseRgb.r) * t);
+        const g = Math.round(baseRgb.g + (activeRgb.g - baseRgb.g) * t);
+        const b = Math.round(baseRgb.b + (activeRgb.b - baseRgb.b) * t);
 
         ctx.save();
         ctx.translate(ox, oy);
-        ctx.fillStyle = style;
+        ctx.fillStyle = `rgb(${r},${g},${b})`;
         ctx.fill(circlePath);
         ctx.restore();
       }
 
-      rafId = requestAnimationFrame(draw);
+      ctx.fillStyle = baseColor;
+      ctx.fill(basePath);
+
+      // enquanto algum ponto ainda está se mexendo, continua animando
+      if (moving) requestDraw();
     };
 
-    draw();
-    return () => cancelAnimationFrame(rafId);
-  }, [proximity, baseColor, activeRgb, baseRgb, circlePath]);
+    const requestDraw = () => {
+      if (visible && rafId === 0) rafId = requestAnimationFrame(draw);
+    };
+    requestDrawRef.current = requestDraw;
+
+    // fora da tela não desenha nada
+    const io = new IntersectionObserver(([entry]) => {
+      visible = entry.isIntersecting;
+      if (visible) requestDraw();
+    });
+    if (wrapperRef.current) io.observe(wrapperRef.current);
+
+    requestDraw();
+    return () => {
+      cancelAnimationFrame(rafId);
+      io.disconnect();
+      requestDrawRef.current = () => {};
+    };
+  }, [proximity, baseColor, activeRgb, baseRgb, circlePath, dotSize]);
 
   useEffect(() => {
     buildGrid();
@@ -218,6 +249,7 @@ const DotGrid: React.FC<DotGridProps> = ({
       pr.x = e.clientX - rect.left;
       pr.y = e.clientY - rect.top;
 
+      requestDrawRef.current();
       for (const dot of dotsRef.current) {
         const dist = Math.hypot(dot.cx - pr.x, dot.cy - pr.y);
         if (speed > speedTrigger && dist < proximity && !dot._inertiaApplied) {
@@ -245,6 +277,7 @@ const DotGrid: React.FC<DotGridProps> = ({
       const rect = canvasRef.current!.getBoundingClientRect();
       const cx = e.clientX - rect.left;
       const cy = e.clientY - rect.top;
+      requestDrawRef.current();
       for (const dot of dotsRef.current) {
         const dist = Math.hypot(dot.cx - cx, dot.cy - cy);
         if (dist < shockRadius && !dot._inertiaApplied) {
