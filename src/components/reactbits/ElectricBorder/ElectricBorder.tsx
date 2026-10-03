@@ -270,8 +270,29 @@ const ElectricBorder: React.FC<ElectricBorderProps> = ({
       ctx.closePath();
       ctx.stroke();
 
-      animationRef.current = requestAnimationFrame(drawElectricBorder);
+      animationRef.current = visible ? requestAnimationFrame(drawElectricBorder) : 0;
     };
+
+    // pausa quando a foto sai da tela ou a aba fica escondida
+    let visible = true;
+    const resume = () => {
+      if (visible && !document.hidden && !animationRef.current) {
+        lastFrameTimeRef.current = performance.now();
+        animationRef.current = requestAnimationFrame(drawElectricBorder);
+      }
+    };
+    const io = new IntersectionObserver(([entry]) => {
+      visible = entry.isIntersecting;
+      resume();
+    });
+    io.observe(container);
+    const onVisibility = () => {
+      if (document.hidden) {
+        cancelAnimationFrame(animationRef.current ?? 0);
+        animationRef.current = 0;
+      } else resume();
+    };
+    document.addEventListener('visibilitychange', onVisibility);
 
     const resizeObserver = new ResizeObserver(() => {
       const newSize = updateSize();
@@ -285,8 +306,11 @@ const ElectricBorder: React.FC<ElectricBorderProps> = ({
     return () => {
       if (animationRef.current) {
         cancelAnimationFrame(animationRef.current);
+        animationRef.current = 0;
       }
       resizeObserver.disconnect();
+      io.disconnect();
+      document.removeEventListener('visibilitychange', onVisibility);
     };
   }, [color, speed, chaos, borderRadius, octavedNoise, getRoundedRectPoint]);
 
