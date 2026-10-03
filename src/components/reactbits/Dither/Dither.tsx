@@ -4,6 +4,7 @@ import './Dither.css';
 
 // Port do Dither do React Bits para ogl: os mesmos shaders (ondas + dithering Bayer 8x8)
 // num único passe, sem three.js / react-three-fiber, para poder rodar um por card.
+// Com `smooth`, desenha as mesmas ondas em resolução cheia, sem blocos nem dithering.
 
 const vertex = `#version 300 es
 in vec2 position;
@@ -27,6 +28,7 @@ uniform float mouseRadius;
 uniform float colorNum;
 uniform float pixelSize;
 uniform vec2 offset;
+uniform int smoothMode;
 out vec4 fragColor;
 
 vec4 mod289(vec4 x) { return x - floor(x * (1.0/289.0)) * 289.0; }
@@ -104,10 +106,14 @@ vec3 dither(vec2 fragCoord, vec3 color) {
   return floor(color * (colorNum - 1.0) + 0.5) / (colorNum - 1.0);
 }
 
+float hash(vec2 p) {
+  return fract(sin(dot(p, vec2(12.9898, 78.233))) * 43758.5453);
+}
+
 void main() {
   // como no efeito original, a onda é amostrada no canto de cada bloco de pixelSize
-  vec2 block = floor(gl_FragCoord.xy / pixelSize) * pixelSize;
-  vec2 uv = block / resolution.xy;
+  vec2 coord = smoothMode == 1 ? gl_FragCoord.xy : floor(gl_FragCoord.xy / pixelSize) * pixelSize;
+  vec2 uv = coord / resolution.xy;
   uv -= 0.5;
   uv.x *= resolution.x / resolution.y;
   uv += offset;
@@ -121,7 +127,12 @@ void main() {
     f -= 0.5 * effect;
   }
   vec3 col = mix(backgroundColor, waveColor, clamp(f, 0.0, 1.0));
-  fragColor = vec4(dither(gl_FragCoord.xy, col), 1.0);
+  if (smoothMode == 1) {
+    // um grão imperceptível evita faixas visíveis no degradê
+    fragColor = vec4(col + (hash(gl_FragCoord.xy) - 0.5) / 255.0, 1.0);
+  } else {
+    fragColor = vec4(dither(gl_FragCoord.xy, col), 1.0);
+  }
 }
 `;
 
@@ -138,6 +149,8 @@ interface DitherProps {
   mouseRadius?: number;
   /** desloca o campo de ondas (para vários canvases mostrarem partes diferentes) */
   offset?: [number, number];
+  /** ondas lisas em resolução cheia, sem pixelização nem dithering */
+  smooth?: boolean;
   className?: string;
 }
 
@@ -157,6 +170,7 @@ export default function Dither({
   enableMouseInteraction = true,
   mouseRadius = 1,
   offset = DEFAULT_OFFSET,
+  smooth = false,
   className = ''
 }: DitherProps) {
   const containerRef = useRef<HTMLDivElement>(null);
@@ -167,7 +181,9 @@ export default function Dither({
   useEffect(() => {
     const container = containerRef.current;
     if (!container) return;
-    const renderer = new Renderer({ webgl: 2, dpr: 1, alpha: false, antialias: false });
+    // o modo pixelado usa 1 pixel por pixel CSS, como o original; o liso acompanha a tela
+    const dpr = smooth ? Math.min(window.devicePixelRatio || 1, 2) : 1;
+    const renderer = new Renderer({ webgl: 2, dpr, alpha: false, antialias: false });
     const gl = renderer.gl;
     const canvas = gl.canvas as HTMLCanvasElement;
     canvas.style.width = '100%';
@@ -191,7 +207,8 @@ export default function Dither({
         mouseRadius: { value: 1 },
         colorNum: { value: 4 },
         pixelSize: { value: 2 },
-        offset: { value: new Float32Array(2) }
+        offset: { value: new Float32Array(2) },
+        smoothMode: { value: smooth ? 1 : 0 }
       }
     });
     programRef.current = program;
@@ -216,8 +233,8 @@ export default function Dither({
       const mouse = u.mousePos.value as Float32Array;
       const inside =
         event.clientX >= rect.left && event.clientX <= rect.right && event.clientY >= rect.top && event.clientY <= rect.bottom;
-      mouse[0] = inside ? event.clientX - rect.left : -1e5;
-      mouse[1] = inside ? event.clientY - rect.top : -1e5;
+      mouse[0] = inside ? (event.clientX - rect.left) * dpr : -1e5;
+      mouse[1] = inside ? (event.clientY - rect.top) * dpr : -1e5;
     };
     window.addEventListener('pointermove', onPointerMove, { passive: true });
 
@@ -269,7 +286,7 @@ export default function Dither({
       gl.getExtension('WEBGL_lose_context')?.loseContext();
       canvas.remove();
     };
-  }, []);
+  }, [smooth]);
 
   // Props atualizam os uniforms sem recriar o contexto
   useEffect(() => {
@@ -298,7 +315,8 @@ export default function Dither({
     disableAnimation,
     enableMouseInteraction,
     mouseRadius,
-    offset
+    offset,
+    smooth
   ]);
 
   return <div ref={containerRef} className={`dither-container ${className}`} />;
