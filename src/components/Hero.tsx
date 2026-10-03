@@ -12,13 +12,13 @@ import Magnet from './reactbits/Magnet/Magnet'
 import RotatingText from './reactbits/RotatingText/RotatingText'
 import { Reveal } from './Reveal'
 
-const DOT_COLORS = {
-  light: { base: '#dde1ea', active: '#3751e4' },
-  dark: { base: '#1e2635', active: '#8f9df0' },
-}
+// Mesma cor de destaque do site (--accent) nos dois temas.
+const ACCENT = '#3751e4'
 
-// Mesma cor de destaque do site (--accent) em cada tema.
-const BORDER_COLOR = { light: '#3751e4', dark: '#8f9df0' }
+const DOT_COLORS = {
+  light: { base: '#dde1ea', active: ACCENT },
+  dark: { base: '#363636', active: ACCENT },
+}
 
 export function Hero({ profile }: { profile: PortfolioData['profile'] }) {
   const { t, l } = useI18n()
@@ -113,7 +113,7 @@ export function Hero({ profile }: { profile: PortfolioData['profile'] }) {
           {reducedMotion ? (
             <Avatar src={profile.avatarUrl} name={profile.name} size={240} />
           ) : (
-            <ElectricBorder color={BORDER_COLOR[theme]} speed={0.6} chaos={0.05} borderRadius={999}>
+            <ElectricBorder color={ACCENT} speed={0.6} chaos={0.05} borderRadius={999}>
               <Avatar src={profile.avatarUrl} name={profile.name} size={240} />
             </ElectricBorder>
           )}

@@ -9,12 +9,14 @@
   --accent-strong: #2840c6;
   --accent-soft: #eef0fd;
   --accent-contrast: #ffffff;
+  /* texto na cor de destaque (no escuro, um azul mais claro para dar leitura) */
+  --accent-text: var(--accent);
   --shadow: 0 1px 2px rgb(15 23 42 / 0.04), 0 4px 16px rgb(15 23 42 / 0.06);
   --shadow-hover: 0 2px 4px rgb(15 23 42 / 0.06), 0 12px 32px rgb(15 23 42 / 0.1);
   --cal-0: #ebedf0;
   --cal-1: #d2d8f9;
   --cal-2: #a5b1f3;
-  --cal-3: #6276ea;
+  --cal-3: #3751e4;
   --cal-4: #2840c6;
   --radius: 14px;
   --font: 'Inter', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
@@ -24,31 +26,32 @@
   --p3-glow: var(--accent);
   --p3-slab: var(--accent-strong);
   --p3-slab-text: #ffffff;
-  --p3-echo: rgb(165 177 243 / 0.8);
+  --p3-echo: rgb(107 140 255 / 0.8);
   color-scheme: light;
 }
 
 :root[data-theme='dark'] {
-  --bg: #0b0f17;
-  --bg-alt: #0f1520;
-  --surface: #121926;
-  --border: #222b3a;
-  --text: #e6e9ef;
-  --text-muted: #96a0b2;
-  --accent: #8f9df0;
-  --accent-strong: #bcc4f6;
-  --accent-soft: rgb(143 157 240 / 0.12);
-  --accent-contrast: #0b0f17;
+  --bg: #1f1f1f;
+  --bg-alt: #242424;
+  --surface: #292929;
+  --border: #383838;
+  --text: #ededed;
+  --text-muted: #a8a8a8;
+  --accent: #3751e4;
+  --accent-strong: #4a63f0;
+  --accent-soft: rgb(55 81 228 / 0.18);
+  --accent-contrast: #ffffff;
+  --accent-text: #6b8cff;
   --shadow: 0 1px 2px rgb(0 0 0 / 0.3);
   --shadow-hover: 0 12px 32px rgb(0 0 0 / 0.45);
-  --cal-0: #1a2231;
-  --cal-1: #1f2d78;
-  --cal-2: #2f46b8;
-  --cal-3: #5a6fe8;
-  --cal-4: #a5b1f3;
-  --p3-slab: #e4e8fb;
-  --p3-slab-text: #0f1e70;
-  --p3-echo: rgb(143 157 240 / 0.7);
+  --cal-0: #2e2e2e;
+  --cal-1: #313965;
+  --cal-2: #33439b;
+  --cal-3: #3751e4;
+  --cal-4: #6b8cff;
+  --p3-slab: #3751e4;
+  --p3-slab-text: #ffffff;
+  --p3-echo: rgb(107 140 255 / 0.7);
   color-scheme: dark;
 }
 
@@ -271,7 +274,7 @@ svg {
 
 .lang-switch button.is-active {
   background: var(--accent-soft);
-  color: var(--accent);
+  color: var(--accent-text);
 }
 
 /* ---------- Hero ---------- */
@@ -306,7 +309,7 @@ svg {
   margin: 0 0 12px;
   font-family: var(--mono);
   font-size: 14px;
-  color: var(--accent);
+  color: var(--accent-text);
 }
 
 .hero__name {
@@ -339,7 +342,7 @@ svg {
   padding: 2px 12px;
   border-radius: 8px;
   background: var(--accent-soft);
-  color: var(--accent);
+  color: var(--accent-text);
   font-weight: 700;
   overflow: hidden;
 }
@@ -396,7 +399,7 @@ svg {
   flex-shrink: 0;
   border-radius: 50%;
   background: var(--accent-soft);
-  color: var(--accent);
+  color: var(--accent-text);
   font-weight: 800;
   letter-spacing: -0.02em;
 }
@@ -433,7 +436,7 @@ svg {
   border: 1px solid color-mix(in srgb, var(--accent) 35%, transparent);
   border-radius: var(--radius);
   /* também é o visual de quem prefere menos movimento */
-  background: linear-gradient(135deg, #3751e4, #122487);
+  background: linear-gradient(135deg, #3751e4, #1f33b0);
   color: #fff;
   box-shadow: var(--shadow);
   transition:
@@ -450,6 +453,8 @@ svg {
   position: absolute;
   inset: 0;
   z-index: -1;
+  /* recorta o canvas WebGL nos cantos arredondados (só overflow nem sempre recorta camadas da GPU) */
+  clip-path: inset(0 round calc(var(--radius) - 1px));
 }
 
 /* leve escurecida atrás do texto para manter a leitura em qualquer ponto das ondas */
@@ -458,7 +463,7 @@ svg {
   position: absolute;
   inset: 0;
   z-index: -1;
-  background: linear-gradient(100deg, rgb(9 18 67 / 0.6), rgb(9 18 67 / 0.1) 75%);
+  background: linear-gradient(100deg, rgb(12 22 90 / 0.45), rgb(12 22 90 / 0) 75%);
   pointer-events: none;
 }
 
@@ -470,7 +475,7 @@ svg {
 
 .stat__value,
 .stat__label {
-  text-shadow: 0 1px 3px rgb(9 18 67 / 0.6);
+  text-shadow: 0 1px 3px rgb(12 22 90 / 0.6);
 }
 
 .stat__label {
@@ -678,7 +683,7 @@ svg {
 .chips button.is-active {
   border-color: var(--accent);
   background: var(--accent-soft);
-  color: var(--accent);
+  color: var(--accent-text);
 }
 
 .grid {
@@ -959,7 +964,7 @@ svg {
   padding: 2px 10px;
   border-radius: 999px;
   background: var(--accent-soft);
-  color: var(--accent);
+  color: var(--accent-text);
   font-size: 12px;
   font-weight: 600;
 }
@@ -1009,7 +1014,7 @@ svg {
   padding: 2px 8px;
   border-radius: 999px;
   background: var(--accent-soft);
-  color: var(--accent);
+  color: var(--accent-text);
 }
 
 /* ---------- Contato e rodapé ---------- */

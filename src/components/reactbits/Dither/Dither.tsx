@@ -186,8 +186,6 @@ export default function Dither({
     const renderer = new Renderer({ webgl: 2, dpr, alpha: false, antialias: false });
     const gl = renderer.gl;
     const canvas = gl.canvas as HTMLCanvasElement;
-    canvas.style.width = '100%';
-    canvas.style.height = '100%';
     canvas.style.display = 'block';
     container.appendChild(canvas);
 
@@ -217,8 +215,10 @@ export default function Dither({
 
     const render = () => renderer.render({ scene: mesh });
     const setSize = () => {
-      const rect = container.getBoundingClientRect();
-      renderer.setSize(Math.max(1, Math.floor(rect.width)), Math.max(1, Math.floor(rect.height)));
+      // tamanho de layout (ignora a escala da animação de entrada) e o canvas sempre cobrindo o card todo
+      renderer.setSize(Math.max(1, container.clientWidth), Math.max(1, container.clientHeight));
+      canvas.style.width = '100%';
+      canvas.style.height = '100%';
       const res = u.resolution.value as Float32Array;
       res[0] = gl.drawingBufferWidth;
       res[1] = gl.drawingBufferHeight;

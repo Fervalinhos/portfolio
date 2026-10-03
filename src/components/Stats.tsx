@@ -1,6 +1,5 @@
 import { useI18n, type MessageKey } from '../lib/i18n'
 import { reducedMotion } from '../lib/reducedMotion'
-import { useTheme } from '../lib/theme'
 import type { PortfolioData } from '../types'
 import CountUp from './reactbits/CountUp/CountUp'
 import Dither from './reactbits/Dither/Dither'
@@ -9,11 +8,9 @@ import { Reveal } from './Reveal'
 type RGB = [number, number, number]
 const rgb = (hex: string): RGB => [1, 3, 5].map((i) => parseInt(hex.slice(i, i + 2), 16) / 255) as RGB
 
-// Ondas nos tons de azul do site (#3751e4): fundo escuro e onda clara.
-const WAVE_COLORS: Record<'light' | 'dark', { wave: RGB; background: RGB }> = {
-  light: { wave: rgb('#a5b1f3'), background: rgb('#1830b4') },
-  dark: { wave: rgb('#6276ea'), background: rgb('#0f1e70') },
-}
+// Ondas no azul do site (#3751e4), iguais nos dois temas: um tom mais fundo e um mais claro.
+const WAVE_COLOR = rgb('#6b8cff')
+const WAVE_BACKGROUND = rgb('#1f33b0')
 
 // Cada card mostra outra região das ondas, para não repetirem o mesmo desenho lado a lado.
 const OFFSETS: [number, number][] = [
@@ -25,8 +22,6 @@ const OFFSETS: [number, number][] = [
 
 export function Stats({ stats }: { stats: PortfolioData['stats'] }) {
   const { t, lang, formatNumber } = useI18n()
-  const { theme } = useTheme()
-  const colors = WAVE_COLORS[theme]
   const items: [MessageKey, number | null][] = [
     ['stats.repos', stats.publicRepos],
     ['stats.contributions', stats.contributionsLastYear],
@@ -48,8 +43,8 @@ export function Stats({ stats }: { stats: PortfolioData['stats'] }) {
               {!reducedMotion && (
                 <div className="stat__waves" aria-hidden="true">
                   <Dither
-                    waveColor={colors.wave}
-                    backgroundColor={colors.background}
+                    waveColor={WAVE_COLOR}
+                    backgroundColor={WAVE_BACKGROUND}
                     waveSpeed={0.06}
                     waveFrequency={1.6}
                     waveAmplitude={0.3}
